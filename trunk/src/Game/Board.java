@@ -1,3 +1,4 @@
+package Game;
 /**
  * This class represents a game board. Keep it simple.
  * 
