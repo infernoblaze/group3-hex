@@ -7,19 +7,24 @@ public class Board
 {
 	private int x, counter;
 	private Cell[][] board;
-	private Cell border;
+	private Cell border1;
+	private Cell border2;
+	private Cell border3;
+	private Cell border4;
 	
 	/**
 	 * Creates a new board with specified dimensions.
 	 * border cell is used to determine when cell's link is a border.
-	 * border cells are in included in the main array.	 * 
 	 * @param dimensions the size of the board
 	 */
 	public Board(int dimensions) 
 	{
 		x = dimensions;		
 		board = new Cell[x][x];		
-		border = new Cell(3);
+		border1 = new Cell(3);
+		border2 = new Cell(4);
+		border3 = new Cell(5);
+		border4 = new Cell(6);
 
 		for (int i = 0; i < board.length; i++)
 		{
@@ -31,64 +36,154 @@ public class Board
 				int c = j+1;
 				int d = i+1;
 				
-				if(a < 0 || b < 0 || c > board.length - 1 || d > board.length - 1)
+				if(a < 0)
 				{
-					board [i][j].aCell = border;
+					board [i][j].nwCell = border1;
+				}
+				
+				else if(b < 0)
+				{
+					board [i][j].nwCell = border2;
+				}
+				
+				else if(c > board.length - 1)
+				{
+					board [i][j].nwCell = border3;
+				}
+				
+				else if(d > board.length - 1)
+				{
+					board [i][j].nwCell = border4;
 				}
 				
 				else
 				{
-					board [i][j].aCell = board[i+1][j-1];
+					board [i][j].nwCell = board[i+1][j-1];
 				}
 				
-				if(a < 0 || b < 0 || c > board.length - 1 || d > board.length - 1)
+				if(a < 0)
 				{
-					board [i][j].bCell = border;
+					board [i][j].nCell = border1;
 				}
 				
-				else
+				else if(b < 0)
 				{
-					board [i][j].bCell = board[i+1][j];
+					board [i][j].nCell = border2;
 				}
 				
-				if(a < 0 || b < 0 || c > board.length - 1 || d > board.length - 1)
+				else if(c > board.length - 1)
 				{
-					board [i][j].cCell = border;
+					board [i][j].nCell = border3;
 				}
 				
-				else
+				else if(d > board.length - 1)
 				{
-					board [i][j].cCell = board[i][j+1];
-				}
-				
-				if(a < 0 || b < 0 || c > board.length - 1 || d > board.length - 1)
-				{
-					board [i][j].dCell = border;
+					board [i][j].nCell = border4;
 				}
 				
 				else
 				{
-					board [i][j].dCell = board[i-1][j+1];
+					board [i][j].nCell = board[i+1][j];
 				}
 				
-				if(a < 0 || b < 0 || c > board.length - 1 || d > board.length - 1)
+				if(a < 0)
 				{
-					board [i][j].eCell = border;
+					board [i][j].neCell = border1;
+				}
+				
+				else if(b < 0)
+				{
+					board [i][j].neCell = border2;
+				}
+				
+				else if(c > board.length - 1)
+				{
+					board [i][j].neCell = border3;
+				}
+				
+				else if(d > board.length - 1)
+				{
+					board [i][j].neCell = border4;
 				}
 				
 				else
 				{
-					board [i][j].eCell = board[i-1][j];
+					board [i][j].neCell = board[i][j+1];
 				}
 				
-				if(a < 0 || b < 0 || c > board.length - 1 || d > board.length - 1)
+				if(a < 0)
 				{
-					board [i][j].fCell = border;
+					board [i][j].seCell = border1;
+				}
+				
+				else if(b < 0)
+				{
+					board [i][j].seCell = border2;
+				}
+				
+				else if(c > board.length - 1)
+				{
+					board [i][j].seCell = border3;
+				}
+				
+				else if(d > board.length - 1)
+				{
+					board [i][j].seCell = border4;
 				}
 				
 				else
 				{
-					board [i][j].fCell = board[i-1][j-1];
+					board [i][j].seCell = board[i-1][j+1];
+				}
+				
+				if(a < 0)
+				{
+					board [i][j].sCell = border1;
+				}
+				
+				else if(b < 0)
+				{
+					board [i][j].sCell = border2;
+				}
+				
+				else if(c > board.length - 1)
+				{
+					board [i][j].sCell = border3;
+				}
+				
+				else if(d > board.length - 1)
+				{
+					board [i][j].sCell = border4;
+				}
+				
+				else
+				{
+					board [i][j].sCell = board[i-1][j];
+				}
+				
+				if(a < 0)
+				{
+					board [i][j].swCell = border1;
+				}
+				
+				else if(b < 0)
+				{
+					board [i][j].swCell = border2;
+				}
+				
+				else if(c > board.length - 1)
+				{
+					board [i][j].swCell = border3;
+				}
+				
+				else if(d > board.length - 1)
+				{
+					board [i][j].swCell = border4;
+				}
+				
+				else
+				{
+					board [i][j].swCell = board[i-1][j-1];
 				}				
 			}
 		}		
@@ -101,16 +196,16 @@ public class Board
 	 * 0 = cell is empty
 	 * 1 = stone from player 1
 	 * 2 = stone from player 2
-	 * 3 = border
+	 * 3,4,5,6 = border
 	 */
 	static class Cell
 	{
-		Cell aCell;
-		Cell bCell;
-		Cell cCell;
-		Cell dCell;
-		Cell eCell;
-		Cell fCell;
+		Cell nwCell;
+		Cell nCell;
+		Cell neCell;
+		Cell seCell;
+		Cell sCell;
+		Cell swCell;
 		
 		int value;
 		
@@ -137,8 +232,7 @@ public class Board
 	}
 	
 	/**
-	 * Swaps the stone of the players if there's only one piece on the board. 
-	 * 
+	 * Swaps the stone of the players if there's only one piece on the board.
 	 */
 	public void swapSides() 
 	{
@@ -180,8 +274,5 @@ public class Board
 	public int getField(int x, int y) 
 	{
 		return board[y][x].value;
-	}
-	
-	// TODO: How do we determine which side belongs to which player?
-	
+	}	
 }
