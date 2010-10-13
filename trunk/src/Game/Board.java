@@ -11,7 +11,7 @@ public class Board
 	private Cell border2;
 	private Cell border3;
 	private Cell border4;
-	
+
 	/**
 	 * Creates a new board with specified dimensions.
 	 * border cell is used to determine when cell's link is a border.
@@ -274,5 +274,17 @@ public class Board
 	public int getField(int x, int y) 
 	{
 		return board[y][x].value;
-	}	
+	}
+
+        public void printBoard() {
+            for(int i = 0 ; i < x ; i++) {
+                for (int j = 0; j < x ; j++) {
+                    System.out.print("{"+board[i][j].value+"}");
+                }
+                System.out.println();
+                for (int k = -1 ; k < i ; k++) {
+                    System.out.print("  ");
+                }
+            }
+        }
 }

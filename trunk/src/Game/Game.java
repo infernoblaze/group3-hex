@@ -67,7 +67,7 @@ public class Game implements Runnable {
 		
 		if (checkEnd())
 		{
-			// We will check for the end later
+                    // not working yet
 		}
 		
 		if (playerTurn == PLAYER_ONE)
@@ -86,10 +86,36 @@ public class Game implements Runnable {
 	 */
 	private boolean checkEnd()
 	{
-		return false;
+            for(int i = 0; i < board.getDimensions() ; i++) {
+             if(findHorizontalPath(i, 1, getPlayer(playerTurn).getPlayerId()))
+             return true;
+            }
+            return false;
 	}
-	
-	private Player getPlayer(int playerId)
+	/**
+         * checks for a horizontal Path (NOT WORKING YET)
+         * @param x X Coordinate from which the path should start
+         * @param y Y Coordinate from which the path should start
+         * @param player Player ID
+         * @return if there is a path
+         */
+        private boolean findHorizontalPath(int x, int y, int player) {      
+            int current = board.getField(x,y);
+            if (x == board.getDimensions() && current == player)
+                return true;
+            if(current != player)
+                return false;
+            else {
+            if(findHorizontalPath(x+1, y, player) ||
+               findHorizontalPath(x, y+1, player) ||
+               findHorizontalPath(x-1, y+1, player))
+                return true;
+            else
+            return false;
+            }
+        }
+
+        private Player getPlayer(int playerId)
 	{
 		for (Player player : this.players) {
 			if (player.getPlayerId() == playerId) {
