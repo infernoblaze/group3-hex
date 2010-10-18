@@ -190,9 +190,7 @@ public class BoardView extends JPanel
 			}
 		}
 		
-		public void mouseClicked(MouseEvent e) {
-                board.printBoard();
-                }
+		public void mouseClicked(MouseEvent e) {}
 		public void mouseEntered(MouseEvent e) {}
 		public void mouseExited(MouseEvent e) {}
 		

@@ -1,5 +1,6 @@
 package Game;
 
+import Game.Board.Cell;
 import Players.*;
 import UI.BoardView;
 
@@ -27,11 +28,10 @@ public class Game implements Runnable {
 	private int turn;
 	
 	/**
-	 * Initializes a game and sets the board. (In future AIs will be specified
-	 * here too.)
+	 * Initializes a game and sets the board.
 	 */
 	public Game() {
-		board = new Board(11);
+		board = new Board(6);
 	}
 
 	/**
@@ -41,10 +41,10 @@ public class Game implements Runnable {
 	public void run()
 	{
 		players = new Player[2];
-		players[0] = new HumanPlayer();
+		players[0] = new RandomPlayer();
 		players[0].setGame(this);
 		players[0].setPlayerId(PLAYER_ONE);
-		players[1] = new HumanPlayer();
+		players[1] = new RandomPlayer();
 		players[1].setGame(this);
 		players[1].setPlayerId(PLAYER_TWO);
 		
@@ -61,13 +61,24 @@ public class Game implements Runnable {
 		//if (turn == 1)
 			//
 		int[] move = activePlayer.getNextMove();
-				
+
+//		Cell[] neighbours = board.getCell(move[0], move[1]).getNeighbours(); 
+//		System.out.println("\n   { " + neighbours[0].getValue() + " } { " + neighbours[1].getValue() + " }");
+//		System.out.println("{ " + neighbours[5].getValue() + " } { o } { " + neighbours[2].getValue() + " }");
+//		System.out.println("   { " + neighbours[4].getValue() + " } { " + neighbours[3].getValue() + " }");
+		
 		board.setPiece(move[0], move[1], activePlayer.getPlayerId());
 		boardView.repaint();
 		
-		if (checkEnd())
+		int endState = checkEnd();
+		if (endState != 0)
 		{
-                    // not working yet
+			if (endState == 1) {
+				System.out.println("WHITE PLAYER WINS");
+			} else if (endState == 2) {
+				System.out.println("BLACK PLAYER WINS");
+			}
+			return;
 		}
 		
 		if (playerTurn == PLAYER_ONE)
@@ -84,38 +95,48 @@ public class Game implements Runnable {
 	 * that case the game ends. 
 	 * @return true if there are, false if not.
 	 */
-	private boolean checkEnd()
+	private int checkEnd()
 	{
-            for(int i = 0; i < board.getDimensions() ; i++) {
-             if(findHorizontalPath(i, 1, getPlayer(playerTurn).getPlayerId()))
-             return true;
-            }
-            return false;
+		int dimensions = board.getDimensions();
+		
+		for (int i = 0; i < board.getDimensions(); i++) {
+			checkedFields = new boolean[dimensions][dimensions];
+			if (findPath(PLAYER_ONE, i, 0))
+				return 1;
+			checkedFields = new boolean[dimensions][dimensions];
+			if (findPath(PLAYER_TWO, 0, i))
+				return 2;
+		}
+		return 0;
 	}
-	/**
-         * checks for a horizontal Path (NOT WORKING YET)
-         * @param x X Coordinate from which the path should start
-         * @param y Y Coordinate from which the path should start
-         * @param player Player ID
-         * @return if there is a path
-         */
-        private boolean findHorizontalPath(int x, int y, int player) {      
-            int current = board.getField(x,y);
-            if (x == board.getDimensions() && current == player)
-                return true;
-            if(current != player)
-                return false;
-            else {
-            if(findHorizontalPath(x+1, y, player) ||
-               findHorizontalPath(x, y+1, player) ||
-               findHorizontalPath(x-1, y+1, player))
-                return true;
-            else
-            return false;
-            }
-        }
+	
+	private boolean[][] checkedFields;
+	
+	private boolean findPath(int playerId, int x, int y)
+	{
+		Cell cell = board.getCell(x, y);
+		checkedFields[x][y] = true;
+		
+		if (cell.getValue() != playerId)
+			return false;
+		
+		for (Cell neighbour : cell.getNeighbours())
+		{
+			if (playerId == PLAYER_ONE && neighbour.getValue() == 6)
+				return true;
+			else if (playerId == PLAYER_TWO && neighbour.getValue() == 4)
+				return true;
 
-        private Player getPlayer(int playerId)
+			if (neighbour.getValue() == playerId &&
+					checkedFields[neighbour.x][neighbour.y] == false &&
+					findPath(playerId, neighbour.x, neighbour.y))
+				return true;
+		}
+		
+		return false;
+	}
+
+    private Player getPlayer(int playerId)
 	{
 		for (Player player : this.players) {
 			if (player.getPlayerId() == playerId) {

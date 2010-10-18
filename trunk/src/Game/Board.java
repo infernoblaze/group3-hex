@@ -5,189 +5,6 @@ package Game;
  */
 public class Board 
 {
-	private int x, counter;
-	private Cell[][] board;
-	private Cell border1;
-	private Cell border2;
-	private Cell border3;
-	private Cell border4;
-
-	/**
-	 * Creates a new board with specified dimensions.
-	 * border cell is used to determine when cell's link is a border.
-	 * @param dimensions the size of the board
-	 */
-	public Board(int dimensions) 
-	{
-		x = dimensions;		
-		board = new Cell[x][x];		
-		border1 = new Cell(3);
-		border2 = new Cell(4);
-		border3 = new Cell(5);
-		border4 = new Cell(6);
-
-		for (int i = 0; i < board.length; i++)
-		{
-			for (int j = 0; j < board[i].length; j++) 
-			{
-				board[i][j] = new Cell(0);				
-				int a = j-1;
-				int b = i-1;
-				int c = j+1;
-				int d = i+1;
-				
-				if(a < 0)
-				{
-					board [i][j].nwCell = border1;
-				}
-				
-				else if(b < 0)
-				{
-					board [i][j].nwCell = border2;
-				}
-				
-				else if(c > board.length - 1)
-				{
-					board [i][j].nwCell = border3;
-				}
-				
-				else if(d > board.length - 1)
-				{
-					board [i][j].nwCell = border4;
-				}
-				
-				else
-				{
-					board [i][j].nwCell = board[i+1][j-1];
-				}
-				
-				if(a < 0)
-				{
-					board [i][j].nCell = border1;
-				}
-				
-				else if(b < 0)
-				{
-					board [i][j].nCell = border2;
-				}
-				
-				else if(c > board.length - 1)
-				{
-					board [i][j].nCell = border3;
-				}
-				
-				else if(d > board.length - 1)
-				{
-					board [i][j].nCell = border4;
-				}
-				
-				else
-				{
-					board [i][j].nCell = board[i+1][j];
-				}
-				
-				if(a < 0)
-				{
-					board [i][j].neCell = border1;
-				}
-				
-				else if(b < 0)
-				{
-					board [i][j].neCell = border2;
-				}
-				
-				else if(c > board.length - 1)
-				{
-					board [i][j].neCell = border3;
-				}
-				
-				else if(d > board.length - 1)
-				{
-					board [i][j].neCell = border4;
-				}
-				
-				else
-				{
-					board [i][j].neCell = board[i][j+1];
-				}
-				
-				if(a < 0)
-				{
-					board [i][j].seCell = border1;
-				}
-				
-				else if(b < 0)
-				{
-					board [i][j].seCell = border2;
-				}
-				
-				else if(c > board.length - 1)
-				{
-					board [i][j].seCell = border3;
-				}
-				
-				else if(d > board.length - 1)
-				{
-					board [i][j].seCell = border4;
-				}
-				
-				else
-				{
-					board [i][j].seCell = board[i-1][j+1];
-				}
-				
-				if(a < 0)
-				{
-					board [i][j].sCell = border1;
-				}
-				
-				else if(b < 0)
-				{
-					board [i][j].sCell = border2;
-				}
-				
-				else if(c > board.length - 1)
-				{
-					board [i][j].sCell = border3;
-				}
-				
-				else if(d > board.length - 1)
-				{
-					board [i][j].sCell = border4;
-				}
-				
-				else
-				{
-					board [i][j].sCell = board[i-1][j];
-				}
-				
-				if(a < 0)
-				{
-					board [i][j].swCell = border1;
-				}
-				
-				else if(b < 0)
-				{
-					board [i][j].swCell = border2;
-				}
-				
-				else if(c > board.length - 1)
-				{
-					board [i][j].swCell = border3;
-				}
-				
-				else if(d > board.length - 1)
-				{
-					board [i][j].swCell = border4;
-				}
-				
-				else
-				{
-					board [i][j].swCell = board[i-1][j-1];
-				}				
-			}
-		}		
-	}
 	
 	/**
 	 * class for the cells of the board.
@@ -198,21 +15,107 @@ public class Board
 	 * 2 = stone from player 2
 	 * 3,4,5,6 = border
 	 */
-	static class Cell
+	public class Cell
 	{
-		Cell nwCell;
-		Cell nCell;
-		Cell neCell;
-		Cell seCell;
-		Cell sCell;
-		Cell swCell;
-		
-		int value;
+		Cell nwCell, wCell, neCell, seCell, eCell, swCell;
+		int value, x, y;
 		
 		public Cell(int value)
 		{
 			this.value = value;
 		}
+		
+		public Cell[] getNeighbours()
+		{
+			return new Cell[] { nwCell, neCell, eCell, seCell, swCell, wCell };
+		}
+		
+		public int getValue()
+		{
+			return this.value;
+		}
+	}
+	
+	
+	private int size, counter;
+	private Cell[][] board;
+	private Cell borderLeft, borderRight, borderTop, borderBottom;
+
+	/**
+	 * Creates a new board with specified dimensions.
+	 * border cell is used to determine when cell's link is a border.
+	 * @param dimensions the size of the board
+	 */
+	public Board(int dimensions)
+	{
+		
+		board = new Cell[dimensions][dimensions];
+		size = dimensions;
+		
+		borderLeft = new Cell(3);
+		borderLeft.x = -1;		
+		borderLeft.y = -1;
+		borderRight = new Cell(4);
+		borderRight.x = -1;		
+		borderRight.y = -1;
+		borderTop = new Cell(5);
+		borderTop.x = -1;		
+		borderTop.y = -1;
+		borderBottom = new Cell(6);
+		borderBottom.x = -1;		
+		borderBottom.y = -1;
+
+		for (int i = 0; i < dimensions; i++)
+			for (int j = 0; j < dimensions; j++) {
+				board[i][j] = new Cell(0);
+				board[i][j].x = i;
+				board[i][j].y = j;
+			}
+
+		
+		for (int i = 0; i < dimensions; i++)
+			for (int j = 0; j < dimensions; j++)
+			{
+				Cell cell = board[i][j];
+				
+				int left = i - 1;
+				int right = i + 1;
+				int top = j - 1;
+				int bottom = j + 1;
+				
+				if (top > -1) {
+					cell.nwCell = board[i][top];
+					if (right < dimensions)
+						cell.neCell = board[right][top];
+					else
+						cell.neCell = borderRight;
+				} else {
+					cell.nwCell = borderTop;
+					cell.neCell = borderTop;
+				}
+
+				if (bottom < dimensions) {
+					cell.seCell = board[i][bottom];
+					if (left > -1)
+						cell.swCell = board[left][bottom];
+					else
+						cell.swCell = borderLeft;
+				} else {
+					cell.seCell = borderBottom;
+					cell.swCell = borderBottom;
+				}
+				
+				if (right < dimensions)
+					cell.eCell  = board[right][j];
+				else
+					cell.eCell  = borderRight;
+				
+				if (left > -1)
+					cell.wCell  = board[left][j];
+				else
+					cell.wCell  = borderLeft;
+			}
+
 	}
 	
 	/**
@@ -224,9 +127,9 @@ public class Board
 	 */
 	public void setPiece(int x, int y, int player) 
 	{
-		if(board[y][x].value == 0)
+		if(board[x][y].value == 0)
 		{
-			board[y][x].value = player; 
+			board[x][y].value = player; 
 			counter++;	
 		}
 	}
@@ -261,7 +164,7 @@ public class Board
 	 */
 	public int getDimensions() 
 	{
-		return x;
+		return size;
 	}
 	
 	/**
@@ -273,18 +176,23 @@ public class Board
 	 */
 	public int getField(int x, int y) 
 	{
-		return board[y][x].value;
+		return board[x][y].value;
 	}
 
-        public void printBoard() {
-            for(int i = 0 ; i < x ; i++) {
-                for (int j = 0; j < x ; j++) {
-                    System.out.print("{"+board[i][j].value+"}");
-                }
-                System.out.println();
-                for (int k = -1 ; k < i ; k++) {
-                    System.out.print("  ");
-                }
+	public Cell getCell(int x, int y) 
+	{
+		return board[x][y];
+	}
+	
+	public void printBoard() {
+        for(int i = 0 ; i < size ; i++) {
+            for (int j = 0; j < size ; j++) {
+                System.out.print("{"+board[i][j].value+"}");
+            }
+            System.out.println();
+            for (int k = -1 ; k < i ; k++) {
+                System.out.print("  ");
             }
         }
+    }
 }
