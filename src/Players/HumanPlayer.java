@@ -6,7 +6,6 @@ import Game.Game;
 public class HumanPlayer implements Player {
 
 	private Game game;
-	private Board board;
 	private int playerId;
 	private int[] nextMove;
 	
