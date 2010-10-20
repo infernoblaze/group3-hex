@@ -72,9 +72,13 @@ public class Board
 				board[i][j].y = j;
 			}
 
-		
-		for (int i = 0; i < dimensions; i++)
-			for (int j = 0; j < dimensions; j++)
+		findNeighbourCells();
+	}
+	
+	private void findNeighbourCells()
+	{
+		for (int i = 0; i < size; i++)
+			for (int j = 0; j < size; j++)
 			{
 				Cell cell = board[i][j];
 				
@@ -85,7 +89,7 @@ public class Board
 				
 				if (top > -1) {
 					cell.nwCell = board[i][top];
-					if (right < dimensions)
+					if (right < size)
 						cell.neCell = board[right][top];
 					else
 						cell.neCell = borderRight;
@@ -94,7 +98,7 @@ public class Board
 					cell.neCell = borderTop;
 				}
 
-				if (bottom < dimensions) {
+				if (bottom < size) {
 					cell.seCell = board[i][bottom];
 					if (left > -1)
 						cell.swCell = board[left][bottom];
@@ -105,7 +109,7 @@ public class Board
 					cell.swCell = borderBottom;
 				}
 				
-				if (right < dimensions)
+				if (right < size)
 					cell.eCell  = board[right][j];
 				else
 					cell.eCell  = borderRight;
@@ -145,11 +149,11 @@ public class Board
 			{
 				for (int j = 0; j < board[i].length; j++) 
 				{
-					if(board[i][j].value == 1)
+					if (board[i][j].value == 1)
 					{
 						board[i][j].value = 2;
 					}
-					if(board[i][j].value == 2)
+					else if (board[i][j].value == 2)
 					{
 						board[i][j].value = 1;
 					}
@@ -182,6 +186,52 @@ public class Board
 	public Cell getCell(int x, int y) 
 	{
 		return board[x][y];
+	}
+	
+	/**
+	 * Checks whether there is a path that connects two sides of the board. In
+	 * that case the game ends. 
+	 * @return true if there are, false if not.
+	 */
+	public int checkEnd()
+	{
+		int dimensions = this.getDimensions();
+		
+		for (int i = 0; i < this.getDimensions(); i++) {
+			checkedFields = new boolean[dimensions][dimensions];
+			if (findPath(Game.PLAYER_ONE, 0, i))
+				return 1;
+			checkedFields = new boolean[dimensions][dimensions];
+			if (findPath(Game.PLAYER_TWO, i, 0))
+				return 2;
+		}
+		return 0;
+	}
+	
+	private boolean[][] checkedFields;
+	
+	private boolean findPath(int playerId, int x, int y)
+	{
+		Cell cell = this.getCell(x, y);
+		checkedFields[x][y] = true;
+		
+		if (cell.getValue() != playerId)
+			return false;
+		
+		for (Cell neighbour : cell.getNeighbours())
+		{
+			if (playerId == Game.PLAYER_ONE && neighbour.getValue() == 4)
+				return true;
+			else if (playerId == Game.PLAYER_TWO && neighbour.getValue() == 6)
+				return true;
+
+			if (neighbour.getValue() == playerId &&
+					checkedFields[neighbour.x][neighbour.y] == false &&
+					findPath(playerId, neighbour.x, neighbour.y))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	public void printBoard() {

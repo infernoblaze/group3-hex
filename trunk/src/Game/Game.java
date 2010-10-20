@@ -31,7 +31,7 @@ public class Game implements Runnable {
 	 * Initializes a game and sets the board.
 	 */
 	public Game() {
-		board = new Board(6);
+		board = new Board(8);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class Game implements Runnable {
 		players[0] = new RandomPlayer();
 		players[0].setGame(this);
 		players[0].setPlayerId(PLAYER_ONE);
-		players[1] = new RandomPlayer();
+		players[1] = new HumanPlayer();
 		players[1].setGame(this);
 		players[1].setPlayerId(PLAYER_TWO);
 		
@@ -58,26 +58,24 @@ public class Game implements Runnable {
 		Player activePlayer = this.getPlayer(playerTurn);
 		
 		boardView.waitingForMove(activePlayer);
-		//if (turn == 1)
-			//
-		int[] move = activePlayer.getNextMove();
-
-//		Cell[] neighbours = board.getCell(move[0], move[1]).getNeighbours(); 
-//		System.out.println("\n   { " + neighbours[0].getValue() + " } { " + neighbours[1].getValue() + " }");
-//		System.out.println("{ " + neighbours[5].getValue() + " } { o } { " + neighbours[2].getValue() + " }");
-//		System.out.println("   { " + neighbours[4].getValue() + " } { " + neighbours[3].getValue() + " }");
+		if (turn == 1)
+			boardView.canSwapSides(true);
+		else
+			boardView.canSwapSides(false);			
 		
-		board.setPiece(move[0], move[1], activePlayer.getPlayerId());
+		int[] move = activePlayer.getNextMove();
+		
+		if (turn == 1 && move[0] == -1 && move[1] == -1)
+			board.swapSides();
+		else
+			board.setPiece(move[0], move[1], activePlayer.getPlayerId());
+		
 		boardView.repaint();
 		
-		int endState = checkEnd();
+		int endState = board.checkEnd();
 		if (endState != 0)
 		{
-			if (endState == 1) {
-				System.out.println("WHITE PLAYER WINS");
-			} else if (endState == 2) {
-				System.out.println("BLACK PLAYER WINS");
-			}
+			boardView.gameHasEnded(endState);
 			return;
 		}
 		
@@ -88,52 +86,6 @@ public class Game implements Runnable {
 		
 		turn++;
 		this.doTurn();
-	}
-	
-	/**
-	 * Checks whether there is a path that connects two sides of the board. In
-	 * that case the game ends. 
-	 * @return true if there are, false if not.
-	 */
-	private int checkEnd()
-	{
-		int dimensions = board.getDimensions();
-		
-		for (int i = 0; i < board.getDimensions(); i++) {
-			checkedFields = new boolean[dimensions][dimensions];
-			if (findPath(PLAYER_ONE, i, 0))
-				return 1;
-			checkedFields = new boolean[dimensions][dimensions];
-			if (findPath(PLAYER_TWO, 0, i))
-				return 2;
-		}
-		return 0;
-	}
-	
-	private boolean[][] checkedFields;
-	
-	private boolean findPath(int playerId, int x, int y)
-	{
-		Cell cell = board.getCell(x, y);
-		checkedFields[x][y] = true;
-		
-		if (cell.getValue() != playerId)
-			return false;
-		
-		for (Cell neighbour : cell.getNeighbours())
-		{
-			if (playerId == PLAYER_ONE && neighbour.getValue() == 6)
-				return true;
-			else if (playerId == PLAYER_TWO && neighbour.getValue() == 4)
-				return true;
-
-			if (neighbour.getValue() == playerId &&
-					checkedFields[neighbour.x][neighbour.y] == false &&
-					findPath(playerId, neighbour.x, neighbour.y))
-				return true;
-		}
-		
-		return false;
 	}
 
     private Player getPlayer(int playerId)
