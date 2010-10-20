@@ -1,6 +1,5 @@
 package Players;
 
-import Game.Board;
 import Game.Game;
 
 public class HumanPlayer implements Player {
@@ -30,6 +29,13 @@ public class HumanPlayer implements Player {
 		}
 		
 		return false;
+	}
+	
+	public synchronized boolean swapSides() {
+		this.nextMove = new int[] { -1, -1 };
+		
+		this.notify();
+		return true;
 	}
 
 	public void setGame(Game theGame) {

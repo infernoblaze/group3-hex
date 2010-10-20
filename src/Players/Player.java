@@ -1,5 +1,5 @@
 package Players;
-import Game.Board;
+
 import Game.Game;
 
 /**
