@@ -3,7 +3,7 @@ package Game;
  * This class represents a game board. Keep it simple.
  * 
  */
-public class Board 
+public class Board implements Cloneable
 {
 	
 	/**
@@ -122,6 +122,8 @@ public class Board
 
 	}
 	
+	private int[] lastPiece;
+	
 	/**
 	 * Puts a piece on the hex board.
 	 * counter is used to keep a record of the amount of moves in a game
@@ -135,7 +137,12 @@ public class Board
 		{
 			board[x][y].value = player; 
 			counter++;	
+			lastPiece = new int[] {x, y};
 		}
+	}
+	
+	public int[] getLastPiece() {
+		return lastPiece;
 	}
 	
 	/**
@@ -172,6 +179,16 @@ public class Board
 	}
 	
 	/**
+	 * Returns the number of pieces on the board.
+	 * @return the size of one side of the board
+	 */
+	public int getPieceCount() 
+	{
+		return counter;
+	}
+
+	
+	/**
 	 * Returns the player id that the piece belongs to or 0 if the field is
 	 * empty.
 	 * @param x the x coordinate on the board
@@ -191,7 +208,7 @@ public class Board
 	/**
 	 * Checks whether there is a path that connects two sides of the board. In
 	 * that case the game ends. 
-	 * @return true if there are, false if not.
+	 * @return 1 if player one wins, 2 if player two wins, 0 otherwise.
 	 */
 	public int checkEnd()
 	{
@@ -245,4 +262,18 @@ public class Board
             }
         }
     }
+	
+	public Board clone() {
+		Board clone = new Board(size);
+		
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (board[i][j].value != 0) {
+					clone.setPiece(i, j, board[i][j].value);
+				}
+			}
+		}
+		
+		return clone;
+	}
 }
