@@ -31,7 +31,7 @@ public class Game implements Runnable {
 	 * Initializes a game and sets the board.
 	 */
 	public Game() {
-		board = new Board(8);
+		board = new Board(6);
 	}
 
 	/**
@@ -41,10 +41,10 @@ public class Game implements Runnable {
 	public void run()
 	{
 		players = new Player[2];
-		players[0] = new RandomPlayer();
+		players[0] = new HumanPlayer();
 		players[0].setGame(this);
 		players[0].setPlayerId(PLAYER_ONE);
-		players[1] = new HumanPlayer();
+		players[1] = new MonteCarloPlayer();
 		players[1].setGame(this);
 		players[1].setPlayerId(PLAYER_TWO);
 		
