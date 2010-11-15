@@ -15,7 +15,6 @@ import Game.HexyBoard;
 public class MiniMaxTree implements Tree<HexElement> {
 
     private int size;
-    private int height = 1;
     private Node root;
     private Node[] children;
 
