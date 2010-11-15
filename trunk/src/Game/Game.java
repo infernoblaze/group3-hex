@@ -1,6 +1,5 @@
 package Game;
 
-import Game.Board.Cell;
 import Players.*;
 import UI.BoardView;
 
@@ -11,22 +10,22 @@ import UI.BoardView;
  *
  */
 public class Game implements Runnable {
-	
+
 	private BoardView boardView;
 	private Board board;
-	
+
 	private Player[] players;
-	
+
 	/**
 	 * Represents the active player, the one that has the turn.
 	 */
 	private int playerTurn;
-	
+
 	/**
-	 * Represents the number of the turn. 
+	 * Represents the number of the turn.
 	 */
 	private int turn;
-	
+
 	/**
 	 * Initializes a game and sets the board.
 	 */
@@ -47,43 +46,43 @@ public class Game implements Runnable {
 		players[1] = new MonteCarloPlayer();
 		players[1].setGame(this);
 		players[1].setPlayerId(PLAYER_TWO);
-		
+
 		playerTurn = PLAYER_ONE;
 		turn = 0;
 
 		this.doTurn();
 	}
-	
+
 	private void doTurn() {
 		Player activePlayer = this.getPlayer(playerTurn);
-		
+
 		boardView.waitingForMove(activePlayer);
 		if (turn == 1)
 			boardView.canSwapSides(true);
 		else
-			boardView.canSwapSides(false);			
-		
+			boardView.canSwapSides(false);
+
 		int[] move = activePlayer.getNextMove();
-		
+
 		if (turn == 1 && move[0] == -1 && move[1] == -1)
 			board.swapSides();
 		else
 			board.setPiece(move[0], move[1], activePlayer.getPlayerId());
-		
+
 		boardView.repaint();
-		
+
 		int endState = board.checkEnd();
 		if (endState != 0)
 		{
 			boardView.gameHasEnded(endState);
 			return;
 		}
-		
+
 		if (playerTurn == PLAYER_ONE)
 			playerTurn = PLAYER_TWO;
 		else if (playerTurn == PLAYER_TWO)
 			playerTurn = PLAYER_ONE;
-		
+
 		turn++;
 		this.doTurn();
 	}
@@ -97,27 +96,27 @@ public class Game implements Runnable {
 		}
 		return null;
 	}
-	
+
 	public void setBoardView(BoardView boardView)
 	{
 		this.boardView = boardView;
-		
+
 		this.boardView.setGame(this);
 		this.boardView.setBoard(board);
 
 	}
-	
+
 	public Board getBoard() {
 		return this.board;
 	}
-	
+
 	/**
 	 * A constant that represents player one
 	 */
 	static public final int PLAYER_ONE = 1;
-	
+
 	/**
-	 * A constant the represents player two; 
+	 * A constant the represents player two;
 	 */
 	static public final int PLAYER_TWO = 2;
 }

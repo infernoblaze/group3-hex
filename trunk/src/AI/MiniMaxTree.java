@@ -5,16 +5,24 @@
 
 package AI;
 
+import Game.Board;
+import Game.HexyBoard;
+
 /**
  *
  * @author Lukas
  */
-public class MiniMax<E> implements Tree {
+public class MiniMaxTree implements Tree<HexElement> {
 
     private int size;
     private int height = 1;
     private Node root;
+    private Node[] children;
 
+    public MiniMaxTree(HexyBoard r) {
+        root = new Node(new HexElement(r, null), null, children, 0);
+    }
+    
     public int size() {
         return size;
     }
@@ -44,13 +52,13 @@ public class MiniMax<E> implements Tree {
     }
 
     public void swapElements(Node p, Node q) {
-        E help = (E) p.element();
+        HexElement help = (HexElement) p.element();
         p.setElement(q.element());
         q.setElement(help);
     }
 
-    public Object replaceElement(Object e, Node p) {
-        E help = (E) p.element();
+    public HexElement replaceElement(HexElement e, Node p) {
+        HexElement help = (HexElement) p.element();
         p.setElement(e);
         return help;
     }
