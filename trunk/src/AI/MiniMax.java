@@ -4,7 +4,6 @@
  */
 package AI;
 
-import Game.Board;
 import Game.HexyBoard;
 import java.util.ArrayList;
 
@@ -21,7 +20,11 @@ public class Minimax {
         tree = new MiniMaxTree(root);
         maxDepth = d;
     }
-
+    /**
+     * returns the next move to be made
+     * @param PlayerID the Player whose turn it is
+     * @return the next move
+     */
     public int[] getNextMove(int PlayerID) {
 
         for (int i = 0; i < maxDepth; i++) {

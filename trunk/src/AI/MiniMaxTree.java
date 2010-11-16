@@ -5,7 +5,6 @@
 
 package AI;
 
-import Game.Board;
 import Game.HexyBoard;
 
 /**
