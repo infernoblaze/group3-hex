@@ -15,23 +15,24 @@ public class MonteCarloPlayer implements Player
 
 	public int[] getNextMove()
 	{
-		
-		System.out.println("Gonna look for a move the Monte Carlo way, bi@tch.");
+		System.out.println("Lalala, Monte Carlo, pumpurum.");
 		
 		Board board = game.getBoard();
 		boardDimensions = board.getDimensions();
 		
 		TreeLeaf top = new TreeLeaf(board.clone());
-		
+				
 		int otherPlayer = (playerId == Game.PLAYER_ONE ? Game.PLAYER_TWO : Game.PLAYER_ONE);
-		populateTree(top, otherPlayer, 1);
+		populateTree(top, top.board, otherPlayer, 1);
 		
 		int[] nextMove = {-2, -2};
-		double maxValue = -10000000000000000000000.0;
+		double maxValue = Double.NEGATIVE_INFINITY;
 		
 		for (TreeLeaf leaf : top.children) {
-			int[] lastMove = leaf.leaf.getLastPiece();
+			int[] lastMove = leaf.board.getLastPiece();
+			
 			System.out.println(leaf.value + " at (" + lastMove[0] + "," + lastMove[1] + ")");
+			
 			if (leaf.value > maxValue) {
 				nextMove = lastMove;
 				maxValue = leaf.value;
@@ -41,20 +42,29 @@ public class MonteCarloPlayer implements Player
 		return nextMove;
 	}
 	
-	public double populateTree(TreeLeaf parentLeaf, int player, int depth)
+	private double populateTree(TreeLeaf leaf, Board board, int player, int depth)
 	{
-		Board board = parentLeaf.leaf;
 		
-//		if (board.getDimensions() * 2 < board.getPieceCount()) {
+		if (board.getDimensions() * 2 <= board.getPieceCount()) {
 			int endState = board.checkEnd();
-			if (endState == playerId) {
-				return 1.0 / depth;
-			} else if (endState != 0) {
-				return -1.0 / depth;
+			if (endState != 0)
+			{
+				if (endState == playerId) {
+					if (depth == 2)
+					{
+						return 100.0;
+					}
+					else
+						return 1.0 / depth;
+				}
+				else
+				{
+					return -1.0 / depth;
+				}
 			}
-//		}
+		}
 				
-		int branchCount = (depth == 1 ? 36 : (depth == 2 ? 10 : (depth == 3 ? 2 : 1)));
+		int branchCount = (depth == 1 ? 36 : (depth == 2 ? 30 : (depth == 20 ? 10 : 1)));
 		
 		ArrayList<Integer[]> blankFields = new ArrayList<Integer[]>();
 		for (int i = 0; i < boardDimensions; i++)
@@ -70,20 +80,37 @@ public class MonteCarloPlayer implements Player
 		
 		for (int i = 0; i < branchCount && !blankFields.isEmpty(); i++)
 		{
+			Board childBoard;
+			TreeLeaf childLeaf;
+			
+			if (branchCount == 1)
+				childBoard = board;
+			else
+				childBoard = board.clone();
+			
 			int r = (int) (Math.random() * blankFields.size());
 			Integer[] nextMove = blankFields.get(r);
 			blankFields.remove(r);
-			Board childBoard = board.clone();
-			childBoard.setPiece(nextMove[0].intValue(), nextMove[1].intValue(), player);
+			childBoard.setPiece(nextMove[0].intValue(), nextMove[1].intValue(), otherPlayer);
 			
-			TreeLeaf childLeaf = new TreeLeaf(childBoard);
-			childLeaf.parent = parentLeaf;
-			parentLeaf.children.add(childLeaf);
+			if (leaf == null || depth > 3)
+				childLeaf = null;
+			else {
+				childLeaf = new TreeLeaf(childBoard);
+				childLeaf.parent = leaf;
+				leaf.children.add(childLeaf);
+			}
 			
-			sum = sum + populateTree(childLeaf, otherPlayer, depth + 1);
+			double childSum = populateTree(childLeaf, childBoard, otherPlayer, depth + 1); 
+			
+			if (childLeaf != null)
+				childLeaf.value = childSum;
+			
+			sum = sum + childSum;
 		}
 		
-		parentLeaf.value = sum;
+		if (leaf != null)
+			leaf.value = sum;
 		
 		return sum;
 	}
@@ -105,13 +132,13 @@ public class MonteCarloPlayer implements Player
 	
 	private class TreeLeaf {
 		public TreeLeaf parent;
-		public Board leaf;
 		public ArrayList<TreeLeaf> children;
+		public Board board;
 		public double value;
 		
-		public TreeLeaf(Board leaf) {
+		public TreeLeaf(Board board) {
 			children = new ArrayList<TreeLeaf>();
-			this.leaf = leaf;
+			this.board = board;
 		}
 	}
 	

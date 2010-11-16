@@ -235,16 +235,30 @@ public class Board implements Cloneable {
         return false;
     }
 
-    public void printBoard() {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                System.out.print("{" + board[i][j].value + "}");
-            }
-            System.out.println();
-            for (int k = -1; k < i; k++) {
-                System.out.print("  ");
-            }
+	public String toString()
+	{
+		String string = "";
+        for(int i = 0 ; i < size ; i++)
+        {
+            for (int j = 0; j < size ; j++)
+                string += "{"+board[i][j].value+"}";
+            
+            string += "\n";
+            
+            for (int k = -1 ; k < i ; k++)
+                string += "  ";
         }
+        
+        return string;
+    }
+	
+	/**
+	 * @deprecated Please use toString instead.
+	 */
+    public void printBoard() {
+    	System.out.println("Deprecated, please use toString()");
+    	
+        System.out.println(toString());
     }
 
     public int[][] getBoard() {
