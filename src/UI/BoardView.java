@@ -261,7 +261,23 @@ public class BoardView extends JPanel
 							g2.draw(piece);
 						}
 					}
-				}			
+				}
+			
+			int[] lastPiece = board.getLastPiece();
+			if (lastPiece != null) {
+				double startX = lastPiece[0] * 35.0 + lastPiece[1] * 35.0 + 12.0;
+				double startY = (boardDimensions - lastPiece[0]) * 20.0 + lastPiece[1] * 20.0 + 10.0;
+				
+				Ellipse2D littleThing = new Ellipse2D.Double(
+						startX + 45.0/2 - 8.0/2,
+						startY + 40.0/2 - 8.0/2,
+						8.0, 8.0);
+				
+				g2.setColor(Color.white);
+				g2.fill(littleThing);
+				g2.setColor(Color.black);
+				g2.draw(littleThing);
+			}
 		}
 
 		private void drawBoardBorder(Graphics2D g2)
