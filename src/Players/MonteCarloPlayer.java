@@ -31,8 +31,6 @@ public class MonteCarloPlayer implements Player
 		for (TreeLeaf leaf : top.children) {
 			int[] lastMove = leaf.board.getLastPiece();
 			
-			System.out.println(leaf.value + " at (" + lastMove[0] + "," + lastMove[1] + ")");
-			
 			if (leaf.value > maxValue) {
 				nextMove = lastMove;
 				maxValue = leaf.value;
