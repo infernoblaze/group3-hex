@@ -31,6 +31,16 @@ public class Board implements Cloneable {
         public int getValue() {
             return this.value;
         }
+        
+        public int getX()
+        {
+        	return x;
+        }
+        
+        public int getY()
+        {
+        	return y;
+        }
     }
     private int size, counter;
     private Cell[][] board;
@@ -235,9 +245,9 @@ public class Board implements Cloneable {
         return false;
     }
 
-	public String toString()
-	{
-		String string = "";
+        public String toString()
+        {
+                String string = "";
         for(int i = 0 ; i < size ; i++)
         {
             for (int j = 0; j < size ; j++)
@@ -251,13 +261,13 @@ public class Board implements Cloneable {
         
         return string;
     }
-	
-	/**
-	 * @deprecated Please use toString instead.
-	 */
+        
+        /**
+         * @deprecated Please use toString instead.
+         */
     public void printBoard() {
-    	System.out.println("Deprecated, please use toString()");
-    	
+        System.out.println("Deprecated, please use toString()");
+        
         System.out.println(toString());
     }
 
