@@ -10,15 +10,13 @@ import Game.Board.Cell;
  */
 public class GroupCell
 {
-	Board board;
-	int player;
-	int usedCounter;
-	int counter, x, y;
-	int [][] used, group;
-	boolean found = false;
+	private Board board;
+	private int counter, x, y, player, usedCounter;
+	private int [][] used, group;
+	private boolean found = false;
 	
 	/**
-	 * 
+	 * creates a group of cells or unit
 	 * @param b board
 	 * @param p player
 	 * @param a usedList
@@ -65,7 +63,7 @@ public class GroupCell
 	}
 	
 	/**
-	 * checks if a used cell has already been revised
+	 * checks if a used cell has already been revised in board
 	 * @param a a cell to be checked
 	 * @return true if cell is unchecked
 	 */
@@ -96,14 +94,17 @@ public class GroupCell
 		}
 		return true;
 	}
-	
+	/**
+	 * states if a new group has been found
+	 * @return true if a new group has been found and false if not
+	 */
 	public boolean found()
 	{
 		return found;
 	}
 	
 	/**
-	 * checks if neighbor cells are occupied by player
+	 * checks if neighboring cells of new cell are occupied by player to create a group
 	 */
 	public void neighbors(int x1, int y1)
 	{
@@ -126,16 +127,26 @@ public class GroupCell
 		}		
 	}	
 	
+	/**
+	 *  List containing cells that have already been checked
+	 * @return List with cells that have already been checked
+	 */
 	public int[][] usedList()
 	{
 		return used;
 	}
-	
+	/**
+	 * List of cells in current group
+	 * @return List of cells in current group
+	 */
 	public int[][] group()
 	{
 		return group;
 	}
-	
+	/**
+	 * counter of cells that have already been checked
+	 * @return counter of cells that have already been checked
+	 */
 	public int getCounter()
 	{
 		return usedCounter;
