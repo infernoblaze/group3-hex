@@ -11,14 +11,16 @@ import java.util.ArrayList;
  *
  * @author Lukas
  */
-public class Minimax {
+public class MiniMax {
 
     private MiniMaxTree tree;
     private int maxDepth;
 
-    public Minimax(HexyBoard root, int d) {
-        tree = new MiniMaxTree(root);
-        maxDepth = d;
+    public MiniMax(HexyBoard rootBoard, int d) {
+        maxDepth = d; 
+        tree = new MiniMaxTree(new Node(new HexElement(rootBoard, null), null, null, null , 0, maxDepth));
+        Node root = (Node)tree.root();
+        root.setTree(tree);
     }
     /**
      * returns the next move to be made
@@ -27,19 +29,22 @@ public class Minimax {
      */
     public int[] getNextMove(int PlayerID) {
 
-        for (int i = 0; i < maxDepth; i++) {
-            createNextLevel(PlayerID);
-            if (PlayerID == 1) {
-                PlayerID = 2;
-            } else {
-                PlayerID = 1;
-            }
-        }
-
+//        for (int i = 0; i < maxDepth; i++) {
+//            createNextLevel(PlayerID);
+//            if (PlayerID == 1) {
+//                PlayerID = 2;
+//            } else {
+//                PlayerID = 1;
+//            }
+//        }
         //here comes the minimax evaluation or hexy evaluation
         Node rooty = (Node) tree.root();
-        rooty.printTree();
-        return rooty.getChildren()[(int)(Math.random()*rooty.getChildren().length)].element().getMove();
+        rooty.buildTree();
+//        rooty.printTree();
+        tree.count(rooty);
+        System.out.println("Tree Size: "+tree.size());
+        Node nextMove = rooty.getMaxChild();
+        return nextMove.element().getMove();
     }
 
     public void createNextLevel(int PlayerID) {
@@ -53,8 +58,4 @@ public class Minimax {
             }
         }
     }
-//    public boolean finished() {
-//        Node r = (Node) tree.root();
-//        return r.finished();
-//    }
 }

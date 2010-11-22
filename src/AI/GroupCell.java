@@ -50,6 +50,7 @@ public class GroupCell
 				
 				if (a == player && unchecked(aCell))
 				{
+                                    System.out.println("CHECK");
 					x = i;
 					y = j;
 					used[usedCounter][0] = x;
