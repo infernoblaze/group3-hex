@@ -11,7 +11,7 @@ public class VirtualConnection
 {
 	private Board board;
 	private int[][] blanks1, blanks2, equals;
-	private int counter, counter1 , counter2;
+	private int counter, counter1 , counter2, player;
 	private GroupCell a,b;
 	
 	/**
@@ -63,6 +63,8 @@ public class VirtualConnection
 		
 		return 2;
 	}
+	
+	
 	
 	/**
 	 * checks if a cell has already been checked in a list

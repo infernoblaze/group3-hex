@@ -3,6 +3,7 @@ package AI;
 import java.util.ArrayList;
 
 import Game.Board;
+import Game.Board.Cell;
 
 /**
  * uses virtual connections to determine how good a board is towards a player
@@ -63,14 +64,103 @@ public class And_Or
 	}
 	
 	/**
+	 * checks if a group of cells creates a virtual connection with a border
+	 * @param aGroup group of cells to be checked
+	 * @return returns 1 if there is a semiconnection, 2 if there is a complete connection and 0 if there is no connection
+	 */
+	public int borderCheck(GroupCell aGroup)
+	{
+		int size = board.getDimensions();
+		int c1 = 0;
+		for(int i = 0; i<aGroup.getCounter();i++)
+		{
+			Cell cell1 = board.getCell(aGroup.group()[i][0], aGroup.group()[i][1]);
+			Cell [] list1 = cell1.getNeighbours();
+			if(player == 1)
+			{
+				if(cell1.getX() == 1)
+				{
+					for(int j = 0; j<list1.length; j++)
+					{
+						if(list1[j].getX()==0)
+						{
+							if(list1[j].getValue() == 0)
+							{
+								c1++;
+							}
+						}						
+					}
+				}
+				
+				if(cell1.getX() == size-2)
+				{
+					for(int j = 0; j<list1.length; j++)
+					{
+						if(list1[j].getX()==size-1)
+						{
+							if(list1[j].getValue() == 0)
+							{
+								c1++;
+							}
+						}						
+					}
+				}
+			}
+			
+			if(player == 2)
+			{
+				if(cell1.getY() == 1)
+				{
+					for(int j = 0; j<list1.length; j++)
+					{
+						if(list1[j].getY()==0)
+						{
+							if(list1[j].getValue() == 0)
+							{
+								c1++;
+							}
+						}						
+					}
+				}
+				
+				if(cell1.getY() == size-2)
+				{
+					for(int j = 0; j<list1.length; j++)
+					{
+						if(list1[j].getY()==size-1)
+						{
+							if(list1[j].getValue() == 0)
+							{
+								c1++;
+							}
+						}						
+					}
+				}
+			}
+		}
+		return c1;
+	}
+	/**
 	 * evaluates the value of current board according to its virtual connections
 	 * @return	the value of current board
 	 */
 	public int evaluate()
 	{
-		while(list.size()>0)
+		ArrayList<GroupCell> aList = list;
+		for(int i = 0; i<aList.size();i++)
 		{
-			int value = type(list.get(0), list.get(1)); 
+			if(borderCheck(aList.get(i)) == 2)
+			{
+				complete++;
+			}
+			if(borderCheck(aList.get(i)) == 1)
+			{
+				semicomplete++;
+			}
+		}
+		while(aList.size()>1)
+		{
+			int value = type(aList.get(0), aList.get(1)); 
 			if(value == 1)
 			{
 				complete++;
@@ -79,10 +169,12 @@ public class And_Or
 			{
 				semicomplete++;
 			}
-			list.remove(0);
+			aList.remove(0);
 		}
-		int score = complete*3 + semicomplete;
 		
+		
+		int score = complete*3 + semicomplete;
+		System.out.println("Score " + score);
 		return score;
 	}
 	
