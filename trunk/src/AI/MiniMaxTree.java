@@ -6,6 +6,7 @@
 package AI;
 
 import Game.HexyBoard;
+import java.util.ArrayList;
 
 /**
  *
@@ -15,12 +16,30 @@ public class MiniMaxTree implements Tree<HexElement> {
 
     private int size;
     private Node root;
-    private Node[] children;
+    private ArrayList<HexyBoard> uniqueBoards = new ArrayList<HexyBoard>();
 
-    public MiniMaxTree(HexyBoard r) {
-        root = new Node(new HexElement(r, null), null, children, 0);
+    public MiniMaxTree(Node r) {
+        root = r;
     }
-    
+
+    public boolean BoardUsed(HexyBoard b) {
+        
+        return uniqueBoards.contains(b);
+    }
+
+    public void addBoard(HexyBoard b) {
+        uniqueBoards.add(b);
+    }
+
+    public void count(Node r) {
+        size++;
+        if (r.getChildren() != null) {
+            for (int i = 0; i < r.getChildren().length; i++) {
+                count(r.getChildren()[i]);
+            }
+        }
+    }
+
     public int size() {
         return size;
     }

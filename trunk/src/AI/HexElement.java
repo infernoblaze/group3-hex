@@ -16,11 +16,17 @@ public class HexElement {
     private int[] move; // the move which created the board
     private HexyBoard bo;
     private int eval;
+    private int playerToMakeMove;
 
     public HexElement(HexyBoard b, int[] m) {
         board = b.getBoard();
         bo = b;
         move = m;
+       try{playerToMakeMove =
+                b.getBoard()[m[0]][m[1]];}
+       catch(Exception e) {
+                playerToMakeMove = 2;
+       }
     }
 
     public void evaluate(int e) {
@@ -37,6 +43,10 @@ public class HexElement {
     
     public HexyBoard board() {
         return bo;
+    }
+
+    public int getPlayer () {
+        return playerToMakeMove;
     }
 
     public int getValue() {
