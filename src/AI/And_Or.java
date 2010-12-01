@@ -152,6 +152,9 @@ public class And_Or
 		for(int i = 0; i<list.size();i++)
 		{
                     System.out.println("Success");
+                    for(int j = 0 ; j < list.get(i).group().length  ; j++) {
+                        System.out.println("Group "+(i+1)+": X: "+list.get(i).group()[j][0]+", Y: "+ list.get(i).group()[j][1]);
+                    }
 			if(borderCheck(list.get(i)) == 2)
 			{
 				complete++;
