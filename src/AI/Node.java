@@ -137,7 +137,7 @@ public class Node implements Position<HexElement> {
         ArrayList<HexyBoard> boards = new ArrayList<HexyBoard>();
         for (int i = 0; i < moves.size(); i++) {
             int[][] newB = mine.getBoard();
-            newB[moves.get(i)[0]][moves.get(i)[1]] = PlayerID;
+            newB[moves.get(i)[0]][moves.get(i)[1]] = PlayerID%2+1;
             HexyBoard b = new HexyBoard(newB);
 
 //            if(!tree.BoardUsed(b)) {
@@ -196,12 +196,16 @@ public class Node implements Position<HexElement> {
     }
 
     private void evaluate() {
-
-        And_Or a = new And_Or(this.element.board(), depth % 2);
-        a.groups();
+//        System.out.println((depth%2+1));
+       
 
         if (isEndNode()) {
-            this.element.evaluate(a.evaluate()); 
+            Node root = (Node)this.tree.root();
+            And_Or a = new And_Or(this.element.board(), root.element().getPlayer());
+            a.groups();
+            this.element.evaluate(a.evaluate());
+            System.out.println("Evaluation: "+a.evaluate());
+//            this.element.evaluate(necessaryMoves((depth%2+1)));
         }
         if (children != null) {
             if (this.depth % 2 != 0) {
@@ -211,6 +215,8 @@ public class Node implements Position<HexElement> {
             }
         }
     }
+
+    
 
     private int min() {
         int min = children[0].element().getValue();

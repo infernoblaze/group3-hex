@@ -41,16 +41,14 @@ public class GroupCell
 	 */
 	public void search()
 	{
-		for(int i = 0; i< board.getDimensions(); i++)
+            for(int i = 0; i< board.getDimensions(); i++)
 		{
 			for(int j = 0; j< board.getDimensions(); j++)
 			{
 				int a = board.getField(i, j);
 				Cell aCell = board.getCell(i, j);
-				
 				if (a == player && unchecked(aCell))
 				{
-                      //              System.out.println("CHECK");
 					x = i;
 					y = j;
 					used[usedCounter][0] = x;

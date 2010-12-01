@@ -17,7 +17,6 @@ public class MinimaxPlayer implements Player{
 
     private Game game;
     private int playerId;
-    private int[] nextMove;
     private MiniMax mima;
 
     public void setGame(Game theGame) {
@@ -34,7 +33,7 @@ public class MinimaxPlayer implements Player{
 
     public int[] getNextMove() {
         HexyBoard mine = new HexyBoard(game.getBoard().getBoard());
-        mima = new MiniMax(mine,2);
+        mima = new MiniMax(mine,1);
         return mima.getNextMove(playerId);
     }
 

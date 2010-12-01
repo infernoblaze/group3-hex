@@ -42,6 +42,7 @@ public class MiniMax {
         rooty.buildTree();
 //        rooty.printTree();
         tree.count(rooty);
+        rooty.printTree();
         System.out.println("Tree Size: "+tree.size());
         Node nextMove = rooty.getMaxChild();
         return nextMove.element().getMove();
