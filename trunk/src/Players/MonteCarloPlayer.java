@@ -62,7 +62,7 @@ public class MonteCarloPlayer implements Player
 			}
 		}
 
-		int branchCount = (depth == 1 ? 36 : (depth == 2 ? 30 : (depth == 20 ? 10 : 1)));
+		int branchCount = (depth == 1 ? 36 : (depth == 2 ? 15 : (depth == 3 ? 10 : 1)));
 
 		ArrayList<Integer[]> blankFields = new ArrayList<Integer[]>();
 		for (int i = 0; i < boardDimensions; i++)

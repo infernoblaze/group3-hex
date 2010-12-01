@@ -30,21 +30,22 @@ public class And_Or
 		size = board.getDimensions() * board.getDimensions();
 		used = new int [size][2];
 		counter = 0;
+                list = new ArrayList<GroupCell>();
 	}
 	
 	/**
 	 * creates an Array List containing all groups of cells from a board
 	 */
-	public void groups()
+	public void groups() 
 	{
-		list = new ArrayList<GroupCell>();
-		
 		for(int i = 0; i<size; i++)
 		{
 			GroupCell group = new GroupCell(board,player,used,counter);
 			if(group.found())
 			{
+                            System.out.println("GROUPS");
 				list.add(group);
+                                System.out.println("List Size = "+list.size());
 				counter = group.getCounter();
 				used = group.usedList();
 			}
@@ -71,7 +72,7 @@ public class And_Or
 	public int borderCheck(GroupCell aGroup)
 	{
 		int size = board.getDimensions();
-		int c1 = 0;
+                int c1 = 0;
 		for(int i = 0; i<aGroup.getCounter();i++)
 		{
 			Cell cell1 = board.getCell(aGroup.group()[i][0], aGroup.group()[i][1]);
@@ -146,35 +147,46 @@ public class And_Or
 	 */
 	public int evaluate()
 	{
-		ArrayList<GroupCell> aList = list;
-		for(int i = 0; i<aList.size();i++)
+//	ArrayList<GroupCell> aList = list;
+        System.out.println("ALIST Size: "+list.size());
+		for(int i = 0; i<list.size();i++)
 		{
-			if(borderCheck(aList.get(i)) == 2)
+                    System.out.println("Success");
+			if(borderCheck(list.get(i)) == 2)
 			{
 				complete++;
+                                System.out.println("complete++");
 			}
-			if(borderCheck(aList.get(i)) == 1)
+			if(borderCheck(list.get(i)) == 1)
 			{
 				semicomplete++;
+                                System.out.println("semicomplete++");
 			}
 		}
-		while(aList.size()>1)
+		while(list.size()>1)
 		{
-			int value = type(aList.get(0), aList.get(1)); 
+			int value = type(list.get(0), list.get(1));
 			if(value == 1)
 			{
 				complete++;
+//                                System.out.println("COMPLETE");
 			}
 			if(value == 2)
 			{
 				semicomplete++;
 			}
-			aList.remove(0);
+			list.remove(0);
 		}
-		
-		
+
 		int score = complete*3 + semicomplete;
-		System.out.println("Score " + score);
+
+//		System.out.println(score);
+//		System.out.println("Score " + score);
+//                if(board.checkEnd() == player)
+//                   score+=1000;
+//                if(board.checkEnd() == player%2+1)
+//                    score-=1000;
+
 		return score;
 	}
 	

@@ -1,5 +1,7 @@
 package Game;
 
+import java.util.ArrayList;
+
 /**
  * This class represents a game board. Keep it simple.
  *
@@ -78,6 +80,25 @@ public class Board implements Cloneable {
         }
 
         findNeighbourCells();
+    }
+   
+    public int necessaryMoves(int PlayerID, int x, int y) {
+        Board hexy = this.clone();
+        if(hexy.checkEnd() == PlayerID) {
+            return 0;
+        }
+        ArrayList<Cell> path = new ArrayList<Cell>();
+        Cell current = this.getCell(x, y);
+        checkedFields = new boolean[size][size];
+        Cell[] neighbours = current.getNeighbours();
+        for(int i = 0 ; i < neighbours.length ; i++) {
+            if(checkedFields[neighbours[i].getX()][neighbours[i].getY()] == true) {
+
+            }
+            checkedFields[neighbours[i].getX()][neighbours[i].getY()] = true;
+
+        }
+            return 0;
     }
 
     private void findNeighbourCells() {
@@ -205,7 +226,7 @@ public class Board implements Cloneable {
      */
     public int checkEnd() {
         int dimensions = this.getDimensions();
-
+        
         for (int i = 0; i < this.getDimensions(); i++) {
             checkedFields = new boolean[dimensions][dimensions];
             if (findPath(Game.PLAYER_ONE, 0, i)) {
