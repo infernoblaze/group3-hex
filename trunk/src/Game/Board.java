@@ -272,7 +272,7 @@ public class Board implements Cloneable {
         for(int i = 0 ; i < size ; i++)
         {
             for (int j = 0; j < size ; j++)
-                string += "{"+board[i][j].value+"}";
+                string += "{"+board[j][i].value+"}";
             
             string += "\n";
             

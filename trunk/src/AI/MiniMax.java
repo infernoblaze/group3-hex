@@ -29,21 +29,13 @@ public class MiniMax {
      */
     public int[] getNextMove(int PlayerID) {
 
-//        for (int i = 0; i < maxDepth; i++) {
-//            createNextLevel(PlayerID);
-//            if (PlayerID == 1) {
-//                PlayerID = 2;
-//            } else {
-//                PlayerID = 1;
-//            }
-//        }
-        //here comes the minimax evaluation or hexy evaluation
+
         Node rooty = (Node) tree.root();
         rooty.buildTree();
 //        rooty.printTree();
-        tree.count(rooty);
-        rooty.printTree();
-        System.out.println("Tree Size: "+tree.size());
+//        tree.count(rooty);
+//        rooty.printTree();
+//        System.out.println("Tree Size: "+tree.size());
         Node nextMove = rooty.getMaxChild();
         return nextMove.element().getMove();
     }

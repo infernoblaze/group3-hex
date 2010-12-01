@@ -201,10 +201,11 @@ public class Node implements Position<HexElement> {
 
         if (isEndNode()) {
             Node root = (Node)this.tree.root();
-            And_Or a = new And_Or(this.element.board(), root.element().getPlayer());
+            And_Or a = new And_Or(this.element.board(), root.element().getPlayer());        
             a.groups();
             this.element.evaluate(a.evaluate());
             System.out.println("Evaluation: "+a.evaluate());
+             System.out.println(this.element().board().toString());
 //            this.element.evaluate(necessaryMoves((depth%2+1)));
         }
         if (children != null) {
