@@ -9,29 +9,23 @@ import Game.Board.Cell;
  */
 public class VirtualConnection 
 {
-	private Board board;
-	private int[][] blanks1, blanks2, equals;
-	private int counter, counter1 , counter2, player;
 	private GroupCell a,b;
+	private Cell[] blanks1, blanks2;
+	private Board board;
+	private int counter, c1, c2;
 	
 	/**
 	 * checks for virtual connections from 2 groups of cells
-	 * @param b1 board to which the groups belong
+	 * @param aBoard board to which the groups belong
 	 * @param aGroup Group 1 to be examined
 	 * @param bGroup Group 2 to be examined
 	 */
-	public VirtualConnection(Board b1, GroupCell aGroup, GroupCell bGroup)
+	public VirtualConnection(GroupCell aGroup,GroupCell bGroup, Board aBoard)
 	{
-		board = b1;
 		a = aGroup;
 		b = bGroup;
+		board = aBoard;
 		counter = 0;
-		counter1 = 0;
-		counter2 = 0;
-		blanks1 = new int[board.getDimensions()*board.getDimensions()][2];
-		blanks2 = new int[board.getDimensions()*board.getDimensions()][2];
-		equals = new int[board.getDimensions()*board.getDimensions()][2];
-		blankLists();
 	}
 	
 	/**
@@ -40,97 +34,105 @@ public class VirtualConnection
 	 */
 	public int check()
 	{
-		for(int i = 0; i<counter1; i++)
+		blankList();
+		
+		for(int i = 0; i<c1;i++)
 		{
-			for(int j = 0; j<counter2; j++)
-			{
-				if(blanks1[i][0] == blanks2[j][0])
-				{
-					equals[counter][0] = blanks1[i][0];
+			for(int j = 0; j<c2;j++)
+			{				
+				if(blanks1[i].getX() == blanks2[j].getX() && blanks1[i].getY() == blanks2[j].getY())
+				{				
 					counter++;
 				}
-			}
-		}
+			}			
+		}		
+		
 		if(counter == 0)
 		{
 			return 0;
 		}
 		
-		if(counter >2)
+		if(counter == 1)
 		{
-			return 1;
+			return 2;
 		}
 		
-		return 2;
+		return 1;
 	}
 	
+	/**
+	 * creates list of blank cells from both groups to compare
+	 */
+	public void blankList()
+	{
+		Cell[] group = a.getCells();
+		c1 = 0;
+		blanks1 = new Cell[board.getDimensions()*board.getDimensions()];
+		for(int i = 0; i<a.getSize();i++)
+		{
+			Cell[] list = group[i].getNeighbours();
+			for(int j = 0; j<list.length;j++)
+			{
+				
+				if(list[j].getValue() == 0)
+				{
+					if(c1==0)
+					{
+						blanks1[c1] = list[j];
+						c1++;
+					}
+					else if(unchecked(list[j], blanks1,c1))
+					{
+						blanks1[c1] = list[j];
+						c1++;
+					}					
+				}
+			}
+		}	
+		
+		Cell[] group1 = b.getCells();
+		c2 = 0;
+		blanks2 = new Cell[board.getDimensions()*board.getDimensions()];
+		for(int i = 0; i<b.getSize();i++)
+		{
+			Cell[] list1 = group1[i].getNeighbours();
+			for(int j = 0; j<list1.length;j++)
+			{
 	
+				if(list1[j].getValue() == 0)
+				{
+					if(c2==0)
+					{
+						blanks2[c2] = list1[j];
+						c2++;
+					}				
+					else if(unchecked(list1[j],blanks2,c2))
+					{
+						blanks2[c2] = list1[j];
+						c2++;
+					}
+				}
+			}
+		}
+	}
 	
 	/**
 	 * checks if a cell has already been checked in a list
-	 * @param a cell to be checked in aList
-	 * @param aList list to be checked
+	 * @param c cell to be checked in a List
+	 * @param list list to be checked
+	 * @param size size of the list to be checked
 	 * @return true if it has not been checked, otherwise false
 	 */
-	public boolean unchecked(Cell a, int [][] aList)
+	public boolean unchecked(Cell c, Cell[] list, int size)
 	{
-		for(int i = 0 ; i<aList.length; i++)
+		for(int i = 0; i<size;i++)
 		{
-			if(aList[i][0] == a.getX() && aList[i][1] == a.getY())
+			Cell aCell = list[i];
+			if(aCell.getX()==c.getX() && aCell.getY() == c.getY())
 			{
 				return false;
 			}
 		}
 		return true;
 	}
-	
-	/**
-	 * creates list with blank cells from groups
-	 */
-	public void blankLists()
-	{
-		for(int i = 0; i<a.getCounter();i++)
-		{
-			Cell cell1 = board.getCell(a.group()[i][0], a.group()[i][1]);
-			Cell [] list1 = cell1.getNeighbours();
-			
-			for(int j = 0;j<list1.length;j++)
-			{
-				Cell aCell = list1[j];
-				if(aCell.getValue() == 0 && unchecked(aCell,blanks1))
-				{
-					blanks1[counter1][0] = aCell.getX();
-					blanks1[counter1][1] = aCell.getY();
-					counter1++;
-				}
-			}
-		}
-		
-		for(int i = 0; i<b.getCounter();i++)
-		{
-			Cell cell2 = board.getCell(b.group()[i][0], b.group()[i][1]);
-			Cell [] list2 = cell2.getNeighbours();
-			
-			for(int j = 0;j<list2.length;j++)
-			{
-				Cell bCell = list2[j];
-				if(bCell.getValue() == 0 && unchecked(bCell,blanks2))
-				{
-					blanks2[counter2][0] = bCell.getX();
-					blanks2[counter2][1] = bCell.getY();
-					counter2++;
-				}
-			}
-		}
-	}
-	
-	/**
-	 * List of cells that are bridges
-	 * @return List of cells that are bridges 
-	 */
-	public int[][] getEquals()
-	{
-		return equals;
-	}
-	
 }
