@@ -30,7 +30,7 @@ public class Game implements Runnable {
 	 * Initializes a game and sets the board.
 	 */
 	public Game() {
-		board = new Board(6);
+		board = new Board(5);
 	}
 
 	/**

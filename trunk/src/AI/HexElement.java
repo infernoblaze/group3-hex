@@ -15,7 +15,7 @@ public class HexElement {
     private int[][] board;
     private int[] move; // the move which created the board
     private HexyBoard bo;
-    private int eval;
+    private double eval;
     private int playerToMakeMove;
 
     public HexElement(HexyBoard b, int[] m) {
@@ -29,7 +29,7 @@ public class HexElement {
        }
     }
 
-    public void evaluate(int e) {
+    public void evaluate(double e) {
         eval = e;
     }
 
@@ -49,7 +49,7 @@ public class HexElement {
         return playerToMakeMove;
     }
 
-    public int getValue() {
+    public double getValue() {
         return eval;
     }
 }

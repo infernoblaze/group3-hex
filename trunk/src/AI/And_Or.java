@@ -22,7 +22,7 @@ public class And_Or
 	 */
     public And_Or(Board b, int p)
     {
-    	board = b;
+                board = b;
 		player = p;
 		list = new ArrayList<GroupCell>();
 		groups();
@@ -205,16 +205,16 @@ public class And_Or
 			int value = type(l.get(0), l.get(1));
 			if(value == 1)
             {
-                    complete++;
+                    complete+=2;
             }
             if(value == 2)
             {
-                    semicomplete++;
+                    semicomplete+=2;
             }
             l.remove(0);
 		}
 		int score = complete*3 + semicomplete + bonus();
-		System.out.println("should be called one time but its twice?");
+                System.out.println("should be called one time but its twice?");
 		return score;
     }
      
