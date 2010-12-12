@@ -196,17 +196,14 @@ public class Node implements Position<HexElement> {
     }
 
     private void evaluate() {
-//        System.out.println((depth%2+1));
-       
-
         if (isEndNode()) {
-            Node root = (Node)this.tree.root();
-            And_Or a = new And_Or(this.element.board(), root.element().getPlayer());        
-            a.groups();
-            this.element.evaluate(a.evaluate());
-            System.out.println("Evaluation: "+a.evaluate());
-             System.out.println(this.element().board().toString());
-//            this.element.evaluate(necessaryMoves((depth%2+1)));
+//            Node root = (Node)this.tree.root();
+//            And_Or a = new And_Or(this.element.board(), 1);
+//            a.groups();
+//            this.element.evaluate(a.evaluate());
+//            System.out.println("Evaluation: "+a.evaluate());
+//            System.out.println(this.element().board().toString());
+            this.element().evaluate(this.element().board().evaluate(1));
         }
         if (children != null) {
             if (this.depth % 2 != 0) {
@@ -219,8 +216,8 @@ public class Node implements Position<HexElement> {
 
     
 
-    private int min() {
-        int min = children[0].element().getValue();
+    private double min() {
+        double min = children[0].element().getValue();
         for (int i = 1; i < children.length; i++) {
             if (children[i].element().getValue() < min) {
                 min = children[i].element().getValue();
@@ -236,7 +233,6 @@ public class Node implements Position<HexElement> {
                 max = children[i];
             }
         }
-
         return max;
     }
 
@@ -251,8 +247,8 @@ public class Node implements Position<HexElement> {
         return min;
     }
 
-    private int max() {
-        int max = children[0].element().getValue();
+    private double max() {
+        double max = children[0].element().getValue();
         for (int i = 1; i < children.length; i++) {
             if (children[i].element().getValue() > max) {
                 max = children[i].element().getValue();

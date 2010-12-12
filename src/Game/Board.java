@@ -19,29 +19,70 @@ public class Board implements Cloneable {
      */
     public class Cell {
 
-        Cell nwCell, wCell, neCell, seCell, eCell, swCell;
-        int value, x, y;
+        Cell[] neighbours;
+        int value, x, y, resW, resB;
+        Link[] links;
 
         public Cell(int value) {
+            neighbours = new Cell[6];
             this.value = value;
+            if (value == 0) {
+                this.resB = 1;
+                this.resW = 1;
+            }
+            if (value == 1) {
+                this.resB = 100000;
+                this.resW = 0;
+            }
+            if (value == 2) {
+                this.resB = 0;
+                this.resW = 100000;
+            }
         }
 
         public Cell[] getNeighbours() {
-            return new Cell[]{nwCell, neCell, eCell, seCell, swCell, wCell};
+            return neighbours;
         }
 
         public int getValue() {
             return this.value;
         }
-        
-        public int getX()
-        {
-        	return x;
+
+        public int getX() {
+            return x;
         }
-        
-        public int getY()
-        {
-        	return y;
+
+        public int getY() {
+            return y;
+        }
+    }
+
+    public class Link {
+
+        private Cell c1, c2;
+        private int rB, rW;
+
+        public Link(Cell a, Cell b) {
+            c1 = a;
+            c2 = b;
+            rB = a.resB + b.resB;
+            rW = a.resW + b.resW;
+        }
+
+        public int getResB() {
+            return rB;
+        }
+
+        public int getResW() {
+            return rW;
+        }
+
+        public Cell getLinkedCell(Cell a) {
+            if (a == c1) {
+                return c2;
+            } else {
+                return c1;
+            }
         }
     }
     private int size, counter;
@@ -76,29 +117,19 @@ public class Board implements Cloneable {
                 board[i][j] = new Cell(0);
                 board[i][j].x = i;
                 board[i][j].y = j;
+
             }
         }
 
         findNeighbourCells();
-    }
-   
-    public int necessaryMoves(int PlayerID, int x, int y) {
-        Board hexy = this.clone();
-        if(hexy.checkEnd() == PlayerID) {
-            return 0;
-        }
-        ArrayList<Cell> path = new ArrayList<Cell>();
-        Cell current = this.getCell(x, y);
-        checkedFields = new boolean[size][size];
-        Cell[] neighbours = current.getNeighbours();
-        for(int i = 0 ; i < neighbours.length ; i++) {
-            if(checkedFields[neighbours[i].getX()][neighbours[i].getY()] == true) {
 
-            }
-            checkedFields[neighbours[i].getX()][neighbours[i].getY()] = true;
+//        for (int i = 0; i < dimensions; i++) {
+//            for (int j = 0; j < dimensions; j++) {
+//                board[i][j].links = new Link[]{new Link(board[i][j], board[i][j].nwCell), new Link(board[i][j], board[i][j].wCell), new Link(board[i][j], board[i][j].neCell), new Link(board[i][j], board[i][j].seCell), new Link(board[i][j], board[i][j].eCell), new Link(board[i][j], board[i][j].swCell)};
+//
+//            }
+//        }
 
-        }
-            return 0;
     }
 
     private void findNeighbourCells() {
@@ -112,43 +143,61 @@ public class Board implements Cloneable {
                 int bottom = j + 1;
 
                 if (top > -1) {
-                    cell.nwCell = board[i][top];
+                    cell.neighbours[0] = board[i][top];
                     if (right < size) {
-                        cell.neCell = board[right][top];
+                        cell.neighbours[2] = board[right][top];
                     } else {
-                        cell.neCell = borderRight;
+                        cell.neighbours[2] = borderRight;
                     }
                 } else {
-                    cell.nwCell = borderTop;
-                    cell.neCell = borderTop;
+                    cell.neighbours[0] = borderTop;
+                    cell.neighbours[2] = borderTop;
                 }
 
                 if (bottom < size) {
-                    cell.seCell = board[i][bottom];
+                    cell.neighbours[3] = board[i][bottom];
                     if (left > -1) {
-                        cell.swCell = board[left][bottom];
+                        cell.neighbours[5] = board[left][bottom];
                     } else {
-                        cell.swCell = borderLeft;
+                        cell.neighbours[5] = borderLeft;
                     }
                 } else {
-                    cell.seCell = borderBottom;
-                    cell.swCell = borderBottom;
+                    cell.neighbours[3] = borderBottom;
+                    cell.neighbours[5] = borderBottom;
                 }
 
                 if (right < size) {
-                    cell.eCell = board[right][j];
+                    cell.neighbours[4] = board[right][j];
                 } else {
-                    cell.eCell = borderRight;
+                    cell.neighbours[4] = borderRight;
                 }
 
                 if (left > -1) {
-                    cell.wCell = board[left][j];
+                    cell.neighbours[1] = board[left][j];
                 } else {
-                    cell.wCell = borderLeft;
+                    cell.neighbours[1] = borderLeft;
                 }
             }
         }
+        borderTop.neighbours = new Cell[size];
+        borderBottom.neighbours = new Cell[size];
+        borderLeft.neighbours = new Cell[size];
+        borderRight.neighbours = new Cell[size];
 
+        for (int i = 0; i < size; i++) {
+            borderTop.neighbours[i] = board[i][0];
+            borderBottom.neighbours[i] = board[i][size-1];
+            borderLeft.neighbours[i] = board[0][i];
+            borderRight.neighbours[i] = board[size-1][i];
+        }
+        borderLeft.resB = 100000;
+        borderLeft.resW = 0;
+        borderRight.resB = 100000;
+        borderRight.resW = 0;
+        borderTop.resW = 100000;
+        borderTop.resB = 0;
+        borderBottom.resW = 100000;
+        borderBottom.resB = 0;
     }
     private int[] lastPiece;
 
@@ -164,6 +213,14 @@ public class Board implements Cloneable {
             board[x][y].value = player;
             counter++;
             lastPiece = new int[]{x, y};
+            if (player == 1) {
+                board[x][y].resB = 100000;
+                board[x][y].resW = 0;
+            }
+            if (player == 2) {
+                board[x][y].resB = 0;
+                board[x][y].resW = 100000;
+            }
         }
     }
 
@@ -180,8 +237,13 @@ public class Board implements Cloneable {
                 for (int j = 0; j < board[i].length; j++) {
                     if (board[i][j].value == 1) {
                         board[i][j].value = 2;
+                        board[i][j].resW = 100000;
+                        board[i][j].resB = 0;
+
                     } else if (board[i][j].value == 2) {
                         board[i][j].value = 1;
+                        board[i][j].resW = 0;
+                        board[i][j].resB = 100000;
                     }
                 }
             }
@@ -226,7 +288,7 @@ public class Board implements Cloneable {
      */
     public int checkEnd() {
         int dimensions = this.getDimensions();
-        
+
         for (int i = 0; i < this.getDimensions(); i++) {
             checkedFields = new boolean[dimensions][dimensions];
             if (findPath(Game.PLAYER_ONE, 0, i)) {
@@ -266,30 +328,112 @@ public class Board implements Cloneable {
         return false;
     }
 
-        public String toString()
-        {
-                String string = "";
-        for(int i = 0 ; i < size ; i++)
-        {
-            for (int j = 0; j < size ; j++)
-                string += "{"+board[j][i].value+"}";
-            
+    public String toString() {
+        String string = "";
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                string += "{" + board[j][i].value + "}";
+            }
+
             string += "\n";
-            
-            for (int k = -1 ; k < i ; k++)
+
+            for (int k = -1; k < i; k++) {
                 string += "  ";
+            }
         }
-        
+
         return string;
     }
-        
-        /**
-         * @deprecated Please use toString instead.
-         */
+
+    /**
+     * @deprecated Please use toString instead.
+     */
     public void printBoard() {
         System.out.println("Deprecated, please use toString()");
-        
+
         System.out.println(toString());
+    }
+
+    public double evaluate(int PlayerID) {
+        double value = 0;
+        checkedFields = new boolean[size][size];
+        pathResistances = new ArrayList<Integer>();
+        getRes(1, borderLeft, 0);
+        double resW = (double)getMinPath();
+        checkedFields = new boolean[size][size];
+        pathResistances = new ArrayList<Integer>();
+        getRes(2, borderBottom, 0);
+        double resB = (double)getMinPath();
+        if (PlayerID == 1) {
+            try {
+                value = (resW / resB);
+            } catch (ArithmeticException e) {
+                value = 100000;
+            }
+        }
+        if (PlayerID == 2) {
+            value = (resB / resW);
+        }
+        System.out.println("resW = " + (int)resW);
+        System.out.println("resB = " + (int)resB);
+        System.out.println("Value = " + (int)value);
+        return value;
+    }
+
+    private ArrayList<Integer> pathResistances = new ArrayList<Integer>();
+
+    public int getRes(int PlayerID, Cell current, int score) {
+        if (current.getX() != -1) {
+            checkedFields[current.getX()][current.getY()] = true;
+        }
+        if (PlayerID == 2) {
+            score += current.resB;
+            for (Cell c : current.getNeighbours()) {
+                try {
+                    if (checkedFields[c.getX()][c.getY()] == false) {
+                        checkedFields[c.getX()][c.getY()] = true;
+                        score += getRes(PlayerID, c, score);
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    if (c == borderTop) {
+                        pathResistances.add(score + c.resB);
+                        checkedFields[current.getX()][current.getY()] = false;
+                        return 0;
+                    }
+                    else score += getRes(PlayerID, c, score);
+                }
+            }
+        } else if (PlayerID == 1) {
+            score += current.resW;
+            for (Cell c : current.getNeighbours()) {
+                try {
+                    if (checkedFields[c.getX()][c.getY()] == false) {
+                        checkedFields[c.getX()][c.getY()] = true;
+                        score += getRes(PlayerID, c, score);
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    if (c == borderRight) {
+                        pathResistances.add(score + c.resW);
+                        checkedFields[current.getX()][current.getY()] = false;
+                        return 0;
+                    }
+                    else score += getRes(PlayerID, c, score);
+                }
+            }
+        }
+        return 0;
+    }
+
+    private int getMinPath() {
+        int min = Integer.MAX_VALUE;
+//        System.out.println("Size = " + pathResistances.size());
+        for (int i = 1; i < pathResistances.size(); i++) {
+//                System.out.println("Path No "+(i)+ " = "+pathResistances.get(i));
+            if (pathResistances.get(i) < min) {
+                min = pathResistances.get(i);
+            }
+        }
+        return min;
     }
 
     public int[][] getBoard() {
@@ -302,6 +446,7 @@ public class Board implements Cloneable {
         return iBoard;
     }
 
+    @Override
     public Board clone() {
         Board clone = new Board(size);
 
