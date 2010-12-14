@@ -186,18 +186,22 @@ public class Board implements Cloneable {
 
         for (int i = 0; i < size; i++) {
             borderTop.neighbours[i] = board[i][0];
-            borderBottom.neighbours[i] = board[i][size-1];
+            borderBottom.neighbours[i] = board[i][size - 1];
             borderLeft.neighbours[i] = board[0][i];
-            borderRight.neighbours[i] = board[size-1][i];
+            borderRight.neighbours[i] = board[size - 1][i];
         }
         borderLeft.resB = 100000;
         borderLeft.resW = 0;
+
         borderRight.resB = 100000;
         borderRight.resW = 0;
+
         borderTop.resW = 100000;
         borderTop.resB = 0;
+
         borderBottom.resW = 100000;
         borderBottom.resB = 0;
+
     }
     private int[] lastPiece;
 
@@ -358,77 +362,81 @@ public class Board implements Cloneable {
         double value = 0;
         checkedFields = new boolean[size][size];
         pathResistances = new ArrayList<Integer>();
-        getRes(1, borderLeft, 0);
-        double resW = (double)getMinPath();
+        for(Cell neighbour : borderLeft.neighbours)
+        getRes(1, neighbour, 0);
+        double resW = (double) getMinPath();
         checkedFields = new boolean[size][size];
         pathResistances = new ArrayList<Integer>();
-        getRes(2, borderBottom, 0);
-        double resB = (double)getMinPath();
-        if (PlayerID == 1) {
-            try {
-                value = (resW / resB);
-            } catch (ArithmeticException e) {
-                value = 100000;
-            }
-        }
-        if (PlayerID == 2) {
-            value = (resB / resW);
-        }
-        System.out.println("resW = " + (int)resW);
-        System.out.println("resB = " + (int)resB);
-        System.out.println("Value = " + (int)value);
+        for(Cell neighbour : borderTop.neighbours)
+        getRes(2, neighbour, 0);
+        double resB = (double) getMinPath();
+        value = (PlayerID == 1) ? (resW / resB) : (resB / resW);
+
+//        System.out.println(toString());
+//        System.out.println("resW = " + (int) resW);
+//        System.out.println("resB = " + (int) resB);
+//        System.out.println("Value = " + value);
         return value;
     }
-
     private ArrayList<Integer> pathResistances = new ArrayList<Integer>();
 
-    public int getRes(int PlayerID, Cell current, int score) {
+    public void getRes(int PlayerID, Cell current, int score) {
+//        System.out.println(PlayerID + ": Current Cell: X= " + current.x + ", Y = " + current.y + ", Value = " + current.value);
         if (current.getX() != -1) {
             checkedFields[current.getX()][current.getY()] = true;
         }
-        if (PlayerID == 2) {
-            score += current.resB;
-            for (Cell c : current.getNeighbours()) {
-                try {
-                    if (checkedFields[c.getX()][c.getY()] == false) {
-                        checkedFields[c.getX()][c.getY()] = true;
-                        score += getRes(PlayerID, c, score);
-                    }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    if (c == borderTop) {
-                        pathResistances.add(score + c.resB);
-                        checkedFields[current.getX()][current.getY()] = false;
-                        return 0;
-                    }
-                    else score += getRes(PlayerID, c, score);
-                }
+        Cell[] c = current.getNeighbours();
+        Cell border = (PlayerID == 2) ? borderBottom : borderRight;
+        int compare = (PlayerID == 2) ? current.y : current.x;
+        if (current.value == 0) {
+            score += 1;
+        }
+        for (int i = 0; i < c.length; i++) {
+            if (c[i] == border) {
+//                System.out.println(PlayerID + ": New Path: " + (score + 1));
+                pathResistances.add(score + 1);
             }
-        } else if (PlayerID == 1) {
-            score += current.resW;
-            for (Cell c : current.getNeighbours()) {
-                try {
-                    if (checkedFields[c.getX()][c.getY()] == false) {
-                        checkedFields[c.getX()][c.getY()] = true;
-                        score += getRes(PlayerID, c, score);
+        }
+
+        for (int i = 0; i < c.length; i++) {
+            if (c[i].getX() != -1) {
+                if (checkedFields[c[i].getX()][c[i].getY()] == false && c[i].value == (PlayerID)) {
+                    if (current.getX() != -1) {
+                        checkedFields[c[i].getX()][c[i].getY()] = true;
                     }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    if (c == borderRight) {
-                        pathResistances.add(score + c.resW);
-                        checkedFields[current.getX()][current.getY()] = false;
-                        return 0;
-                    }
-                    else score += getRes(PlayerID, c, score);
+                    getRes(PlayerID, c[i], score);
                 }
             }
         }
-        return 0;
+        for (int i = 0; i < c.length; i++) {
+            if (c[i].getX() != -1) {
+                if (checkedFields[c[i].getX()][c[i].getY()] == false && c[i].value == 0 && ((PlayerID == 1) ? c[i].getX()>compare : c[i].getY()>compare)) {
+                    if (current.getX() != -1) {
+                        checkedFields[c[i].getX()][c[i].getY()] = true;
+                    }
+                    score+=1;
+                    getRes(PlayerID, c[i], score);
+                }
+            }
+        }
+        for (int i = 0; i < c.length; i++) {
+            if (c[i].getX() != -1) {
+                if (checkedFields[c[i].getX()][c[i].getY()] == false && c[i].value == 0) {
+                    if (current.getX() != -1) {
+                        checkedFields[c[i].getX()][c[i].getY()] = true;
+                    }
+                    score += 1;
+                    getRes(PlayerID, c[i], score);
+                }
+            }
+        }
     }
 
     private int getMinPath() {
         int min = Integer.MAX_VALUE;
 //        System.out.println("Size = " + pathResistances.size());
-        for (int i = 1; i < pathResistances.size(); i++) {
-//                System.out.println("Path No "+(i)+ " = "+pathResistances.get(i));
+        for (int i = 0; i < pathResistances.size(); i++) {
+//            System.out.println("Path No " + (i+1) + " = " + pathResistances.get(i));
             if (pathResistances.get(i) < min) {
                 min = pathResistances.get(i);
             }

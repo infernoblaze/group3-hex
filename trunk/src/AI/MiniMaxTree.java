@@ -16,19 +16,18 @@ public class MiniMaxTree implements Tree<HexElement> {
 
     private int size;
     private Node root;
-    private ArrayList<HexyBoard> uniqueBoards = new ArrayList<HexyBoard>();
+    private ArrayList<Integer> HashBoards = new ArrayList<Integer>();
 
     public MiniMaxTree(Node r) {
         root = r;
     }
 
-    public boolean BoardUsed(HexyBoard b) {
-        
-        return uniqueBoards.contains(b);
+    public boolean BoardUsed(HexyBoard b) {      
+        return HashBoards.contains(b.hashCode());
     }
 
     public void addBoard(HexyBoard b) {
-        uniqueBoards.add(b);
+        HashBoards.add(b.hashCode());
     }
 
     public void count(Node r) {

@@ -33,7 +33,7 @@ public class MinimaxPlayer implements Player{
 
     public int[] getNextMove() {
         HexyBoard mine = new HexyBoard(game.getBoard().getBoard());
-        mima = new MiniMax(mine,1);
+        mima = new MiniMax(mine,2);
         return mima.getNextMove(playerId);
     }
 

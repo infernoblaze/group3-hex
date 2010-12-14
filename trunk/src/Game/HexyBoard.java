@@ -42,8 +42,6 @@ public class HexyBoard extends Board {
     }
 
     public ArrayList<int[]> findPossibleMoves(int PlayerID) { // mirror imgaes and rotation included --> needs to be done
-
-        ArrayList<HexyBoard> boards = new ArrayList<HexyBoard>();
         ArrayList<int[]> moves = new ArrayList<int[]>();
         for (int i = 0; i < super.getDimensions(); i++) {
             for (int j = 0; j < super.getDimensions(); j++) {

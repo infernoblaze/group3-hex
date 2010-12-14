@@ -32,19 +32,20 @@ public class MiniMax {
 
         Node rooty = (Node) tree.root();
         rooty.buildTree();
+        rooty.printTree();
         Node nextMove = rooty.getMaxChild();
         return nextMove.element().getMove();
     }
 
-    public void createNextLevel(int PlayerID) {
-        Node root = (Node) tree.root();
-        if (root.getChildren() == null) {
-            root.expandNode(PlayerID);
-        } else {
-            ArrayList<Node> leaves = root.findLeaves();
-            for (int i = 0; i < leaves.size(); i++) {
-                leaves.get(i).expandNode(PlayerID);
-            }
-        }
-    }
+//    public void createNextLevel(int PlayerID) {
+//        Node root = (Node) tree.root();
+//        if (root.getChildren() == null) {
+//            root.expandNode();
+//        } else {
+//            ArrayList<Node> leaves = root.findLeaves();
+//            for (int i = 0; i < leaves.size(); i++) {
+//                leaves.get(i).expandNode();
+//            }
+//        }
+//    }
 }
