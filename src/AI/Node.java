@@ -1,6 +1,7 @@
 package AI;
 
 import Game.HexyBoard;
+import Players.Player;
 import java.util.ArrayList;
 
 /**
@@ -11,9 +12,12 @@ public class Node implements Position<HexElement> {
 
     private HexElement element;
     private Node parent;
-    private int depth, maxDepth, alpha, beta;
+    private int depth, maxDepth;
+    private double alpha, beta;
     private Node[] children;
     private MiniMaxTree tree;
+    private HexyBoard mine;
+    private ArrayList<int[]> moves;
 
     /**
      * creates a new Node
@@ -30,6 +34,8 @@ public class Node implements Position<HexElement> {
         alpha = Integer.MIN_VALUE;
         beta = Integer.MAX_VALUE;
         tree = t;
+        mine = element().board();
+        moves = mine.findPossibleMoves(element.getPlayer());
     }
 
     public void setTree(MiniMaxTree t) {
@@ -131,20 +137,17 @@ public class Node implements Position<HexElement> {
         return depth;
     }
 
-    public Node[] expandNode(int PlayerID) {
-        HexyBoard mine = element().board();
-        ArrayList<int[]> moves = mine.findPossibleMoves(PlayerID);
+    public Node[] expandNode() {
+        
         ArrayList<HexyBoard> boards = new ArrayList<HexyBoard>();
         for (int i = 0; i < moves.size(); i++) {
             int[][] newB = mine.getBoard();
-            newB[moves.get(i)[0]][moves.get(i)[1]] = PlayerID%2+1;
+            newB[moves.get(i)[0]][moves.get(i)[1]] = element.getPlayer()%2+1;
             HexyBoard b = new HexyBoard(newB);
-
-//            if(!tree.BoardUsed(b)) {
+            if(!tree.BoardUsed(b)) {
             boards.add(b);
-//            tree.addBoard(b);
-//            }
-
+            tree.addBoard(b);
+            }
         }
         Node[] myChildren = new Node[boards.size()];
         for (int i = 0; i < boards.size(); i++) {
@@ -175,12 +178,44 @@ public class Node implements Position<HexElement> {
             evaluate();
             return;
         } else {
-            int childrenLength = expandNode(element.getPlayer()).length;
+            int childrenLength = expandNode().length;
             for (int i = 0; i < childrenLength; i++) {
                 getChildren()[i].buildTree();
             }
         }
         evaluate();
+    }
+
+    public void ABbuildTree() {
+        int childrenLength = expandNode().length;
+        for (int i = 0; i < childrenLength; i++) {
+            if (getChildren()[i].isEndNode()) {
+                getChildren()[i].evaluate();
+            }
+
+            if (element().getPlayer() == 1) {
+                if (getChildren()[i].element().getValue() > beta) {
+                    break;
+                }
+            } else {
+                if (getChildren()[i].element().getValue() < alpha) {
+                    break;
+                }
+            }
+            getChildren()[i].alpha = alpha;
+            getChildren()[i].beta = beta;
+            getChildren()[i].ABbuildTree();
+        }
+        evaluate();
+
+        Node[] siblings = getSiblings();
+        for (int i = 0; i < siblings.length; i++) {
+            if (element().getPlayer() == 1) {
+                siblings[i].beta = element().getValue();
+            } else {
+                siblings[i].alpha = element().getValue();
+            }
+        }
     }
 
     public void printTree() {
@@ -197,13 +232,13 @@ public class Node implements Position<HexElement> {
 
     private void evaluate() {
         if (isEndNode()) {
-//            Node root = (Node)this.tree.root();
+            Node root = (Node)this.tree.root();
 //            And_Or a = new And_Or(this.element.board(), 1);
 //            a.groups();
 //            this.element.evaluate(a.evaluate());
 //            System.out.println("Evaluation: "+a.evaluate());
 //            System.out.println(this.element().board().toString());
-            this.element().evaluate(this.element().board().evaluate(1));
+            this.element().evaluate(this.element().board().evaluate(root.element.getPlayer()%2+1));
         }
         if (children != null) {
             if (this.depth % 2 != 0) {
