@@ -34,7 +34,9 @@ public class Game implements Runnable {
 	 * Initializes a game and sets the board.
 	 */
 	public Game() {
-		this(6, new HumanPlayer(), new MonteCarloPlayer());
+
+		this(5, new RandomSimulationPlayer(), new MinimaxPlayer());
+
 	}
 	
 	public Game(int boardSize, Player playerOne, Player playerTwo) {
@@ -59,6 +61,7 @@ public class Game implements Runnable {
 	 */
 	public void run()
 	{
+
 		playerTurn = PLAYER_ONE;
 		turn = 0;
 
@@ -71,7 +74,7 @@ public class Game implements Runnable {
 	 * Carries out all the  operations for a turn to happen 
 	 */
 	private void doTurn() {
-		System.out.println("Turn: " + turn);
+//		System.out.println("Turn: " + turn);
 		
 		// Lets get the active player
 		Player activePlayer = this.getPlayer(playerTurn);

@@ -37,4 +37,8 @@ public class MinimaxPlayer implements Player{
         return mima.getNextMove(playerId);
     }
 
+    public void setCanSwapSides(boolean state) {
+        
+    }
+
 }

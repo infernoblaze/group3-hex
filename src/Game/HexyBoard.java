@@ -25,10 +25,7 @@ public class HexyBoard extends Board {
         }
     }
 
-    /**
-     * finds all possible moves which can be done from
-     * @return an Array list of all possible moves
-     */
+    
     public HexyBoard getMirrorImage() {
         int[][] mir = new int[getDimensions()][getDimensions()];
         for (int i = (getDimensions() - 1); i >= 0; i--) {
@@ -40,7 +37,10 @@ public class HexyBoard extends Board {
         HexyBoard mirror = new HexyBoard(mir);
         return mirror;
     }
-
+    /**
+     * finds all possible moves which can be done from
+     * @return an Array list of all possible moves
+     */
     public ArrayList<int[]> findPossibleMoves(int PlayerID) { // mirror imgaes and rotation included --> needs to be done
         ArrayList<int[]> moves = new ArrayList<int[]>();
         for (int i = 0; i < super.getDimensions(); i++) {
