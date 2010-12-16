@@ -70,7 +70,7 @@ public class MonteCarloPlayer implements Player {
 		for (Node node : root.children) {
 			int[] lastMove = node.board.getLastPiece();
 			
-			System.out.println("("+lastMove[0]+","+lastMove[1]+"): " + node.value);
+//			System.out.println("("+lastMove[0]+","+lastMove[1]+"): " + node.value);
 		
 			if (node.value > maxValue) {
 				nextMove = node.board.getLastPiece();

@@ -21,7 +21,6 @@ public class Board implements Cloneable {
 
         Cell[] neighbours;
         int value, x, y, resW, resB;
-        Link[] links;
 
         public Cell(int value) {
             neighbours = new Cell[6];
@@ -57,34 +56,81 @@ public class Board implements Cloneable {
         }
     }
 
-    public class Link {
+    public class Group { // NEW CLASS!!!
+        Cell[] cells;
+        Cell[] neighbours;
+        private int size, playerID;
 
-        private Cell c1, c2;
-        private int rB, rW;
-
-        public Link(Cell a, Cell b) {
-            c1 = a;
-            c2 = b;
-            rB = a.resB + b.resB;
-            rW = a.resW + b.resW;
+        public Group(Cell aCell) {
+            cells = new Cell[1];
+            cells[0] = aCell;
+            size = 1;
+            neighbours = aCell.getNeighbours();
+            playerID = aCell.getValue();
         }
 
-        public int getResB() {
-            return rB;
+        public Cell[] getCells() {
+            return cells;
         }
 
-        public int getResW() {
-            return rW;
+        public int size() {
+            return size;
         }
 
-        public Cell getLinkedCell(Cell a) {
-            if (a == c1) {
-                return c2;
-            } else {
-                return c1;
+        public Cell[] getNeighbours() {
+            return neighbours;
+        }
+
+        public void add(Group aGroup) {
+            for(int i = size ; i < size+aGroup.size() ; i++)
+            cells[i] = aGroup.getCells()[i-size];
+            size+=aGroup.size();
+            Cell[] oldNeighbours = neighbours;
+            Cell[] newNeighbours = aGroup.getNeighbours();
+            neighbours = getDistinctCells(oldNeighbours, newNeighbours);
+        }
+
+        public Cell[] getDistinctCells(Cell[] a, Cell[] b) {
+            int number;
+            Cell[] newCells = new Cell[a.length+b.length];
+            for(int i = 0 ; i < a.length ; i++) {
+                newCells[i] = a[i];
             }
+            for(int j = 0 ; j < b.length ; j++) {
+                newCells[j+a.length] = b[j];
+            }
+            number = newCells.length;
+            for(int i = 0 ; i < newCells.length ; i++) {
+                for(int j = 0 ; j < newCells.length ; j++) {
+                    if(newCells[i] == newCells[j]) {
+                        newCells[i] = null;
+                        newCells[j] = null;
+                        number -=2;
+                    }
+                }
+            }
+            Cell[] Cells = new Cell[number];
+            int counter = 0;
+            for(int i = 0 ; i < newCells.length ; i++) {
+                if(newCells[i] != null) {
+                    Cells[counter] = newCells[i];
+                    counter++;
+                }
+            }
+            return Cells;
         }
     }
+
+    public boolean isBridge(Cell a, Cell b) {
+            return ((a.x == b.x-1 && a.y == b.y+2) ||
+                    (a.x == b.x+1 && a.y == b.y+1) ||
+                    (a.x == b.x+2 && a.y == b.y-1) ||
+                    (a.x == b.x-2 && a.y == b.y+1) ||
+                    (a.x == b.x-1 && a.y == b.y-1) ||
+                    (a.x == b.x+1 && a.y == b.y-2));
+    }
+
+
     private int size, counter;
     private Cell[][] board;
     private Cell borderLeft, borderRight, borderTop, borderBottom;
@@ -361,16 +407,14 @@ public class Board implements Cloneable {
     public double evaluate(int PlayerID) {
         double value = 0;
         checkedFields = new boolean[size][size];
-        pathResistances = new ArrayList<Integer>();
-        for(Cell neighbour : borderLeft.neighbours)
-        getRes(1, neighbour, 0);
+        pathResistances = new ArrayList<Integer>();     
+        getRes(1, borderLeft, 0);
         double resW = (double) getMinPath();
         checkedFields = new boolean[size][size];
         pathResistances = new ArrayList<Integer>();
-        for(Cell neighbour : borderTop.neighbours)
-        getRes(2, neighbour, 0);
+        getRes(2, borderTop, 0);
         double resB = (double) getMinPath();
-        value = (PlayerID == 1) ? (resW / resB) : (resB / resW);
+        value = (PlayerID == 1) ? (resB / resW) : (resW / resB);
 
 //        System.out.println(toString());
 //        System.out.println("resW = " + (int) resW);
@@ -386,18 +430,28 @@ public class Board implements Cloneable {
             checkedFields[current.getX()][current.getY()] = true;
         }
         Cell[] c = current.getNeighbours();
-        Cell border = (PlayerID == 2) ? borderBottom : borderRight;
-        int compare = (PlayerID == 2) ? current.y : current.x;
+        Cell border = (PlayerID == 1) ? borderRight : borderBottom;
+        int compare = (PlayerID == 1) ? current.x : current.y;
+
         if (current.value == 0) {
             score += 1;
         }
         for (int i = 0; i < c.length; i++) {
             if (c[i] == border) {
-//                System.out.println(PlayerID + ": New Path: " + (score + 1));
-                pathResistances.add(score + 1);
+//                System.out.println(PlayerID + ": New Path: " + (score));
+                pathResistances.add(score);
             }
         }
-
+        for (int i = 0; i < c.length; i++) {
+            if (c[i].getX() != -1) {
+                if (checkedFields[c[i].getX()][c[i].getY()] == false && c[i].value == (PlayerID) && ((PlayerID == 1) ? c[i].getX()>compare : c[i].getY()>compare)) {
+                    if (current.getX() != -1) {
+                        checkedFields[c[i].getX()][c[i].getY()] = true;
+                    }
+                    getRes(PlayerID, c[i], score);
+                }
+            }
+        }
         for (int i = 0; i < c.length; i++) {
             if (c[i].getX() != -1) {
                 if (checkedFields[c[i].getX()][c[i].getY()] == false && c[i].value == (PlayerID)) {

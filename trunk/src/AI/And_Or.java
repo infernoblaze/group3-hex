@@ -185,19 +185,15 @@ public class And_Or
      public int evaluate()
     {
     	ArrayList<GroupCell> l = list;
-		System.out.println("list size " + list.size());
 		for(int i = 0; i<l.size();i++)
         {
-            System.out.println("Success");
                 if(borderCheck(l.get(i)) == 2)
                 {
                         complete++;
-                        System.out.println("complete++");
                 }
                 if(borderCheck(l.get(i)) == 1)
                 {
                         semicomplete++;
-                        System.out.println("semicomplete++");
                 }
         }
 		while(l.size()>1)
@@ -213,30 +209,7 @@ public class And_Or
             }
             l.remove(0);
 		}
-		int score = complete*3 + semicomplete + bonus();
-                System.out.println("should be called one time but its twice?");
+		int score = complete*3 + semicomplete;
 		return score;
     }
-     
-     /**
-      * calculates an extra bonus for the score making it more appealing to close virtualconnections instead of create new groups
-      * @return bonus
-      */
-    public int bonus()
-	{
-		int bonus = 0;
-		if(list.size()==1)
-		{
-			bonus = 10;
-		}
-		if(list.size() == 2)
-		{
-			bonus = 6;
-		}
-		if(list.size() == 3)
-		{
-			bonus = 4;
-		}
-		return bonus;
-	}
 }

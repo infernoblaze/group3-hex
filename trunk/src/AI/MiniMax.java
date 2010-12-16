@@ -15,11 +15,12 @@ public class MiniMax {
 
     private MiniMaxTree tree;
     private int maxDepth;
+    private Node root;
 
     public MiniMax(HexyBoard rootBoard, int d) {
         maxDepth = d; 
         tree = new MiniMaxTree(new Node(new HexElement(rootBoard, null), null, null, null , 0, maxDepth));
-        Node root = (Node)tree.root();
+        root = (Node)tree.root();
         root.setTree(tree);
     }
     /**
@@ -31,8 +32,10 @@ public class MiniMax {
 
 
         Node rooty = (Node) tree.root();
-        rooty.buildTree();
-        rooty.printTree();
+        root.buildTree();
+//        root.printTree();
+//        tree.count(root);
+//        System.out.println("Tree Size : "+tree.size());
         Node nextMove = rooty.getMaxChild();
         return nextMove.element().getMove();
     }

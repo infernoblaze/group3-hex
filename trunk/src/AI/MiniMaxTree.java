@@ -30,6 +30,10 @@ public class MiniMaxTree implements Tree<HexElement> {
         HashBoards.add(b.hashCode());
     }
 
+    public ArrayList<Integer> getUsed() {
+        return HashBoards;
+    }
+
     public void count(Node r) {
         size++;
         if (r.getChildren() != null) {
