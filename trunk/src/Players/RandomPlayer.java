@@ -48,4 +48,10 @@ public class RandomPlayer implements Player {
 		return this.playerId;
 	}
 
+	@Override
+	public void setCanSwapSides(boolean state) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

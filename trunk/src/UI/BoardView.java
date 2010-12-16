@@ -140,7 +140,7 @@ public class BoardView extends JPanel
 				setStatusText("Waiting for Black's move.");
 	}
 	
-	public void canSwapSides(boolean state)
+	public void setCanSwapSides(boolean state)
 	{
 		if (state && activePlayer.getClass().getName() == "Players.HumanPlayer")
 		{

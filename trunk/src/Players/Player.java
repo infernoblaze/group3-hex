@@ -21,7 +21,13 @@ public interface Player {
 	 */
 	public void setPlayerId(int thePlayer);
 	
+	/**
+	 * Returns the player identifier
+	 * @return numeric player id
+	 */
 	public int getPlayerId();
+	
+	public void setCanSwapSides(boolean state);
 	
 	/**
 	 * Game should call this method whenever it needs a new "move" from the AI
