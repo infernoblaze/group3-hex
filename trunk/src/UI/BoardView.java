@@ -21,8 +21,12 @@ import javax.swing.JPanel;
 
 import Game.Board;
 import Game.Game;
-import Players.HumanPlayer;
+import Players.*;
 import Players.Player;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 /**
  * Deals with all the user interface stuff. 
@@ -40,8 +44,16 @@ public class BoardView extends JPanel
 	private JLabel statusLabel;
 	private JButton swapSidesButton;
 	private JButton newGameButton;
+        private JMenuBar menubar;
+        private JMenu firstPlayer, secondPlayer, boardSize;
+        private JMenuItem HumanPlayer, RandomSimulationPlayer, MinimaxPlayer, MonteCarloPlayer;
+        private JMenuItem HumanPlayer2, RandomSimulationPlayer2, MinimaxPlayer2, MonteCarloPlayer2;
+        private JMenuItem four, five, six, seven, eight, nine, ten, eleven;
 
-	public BoardView()
+        private Player FIRST_PLAYER, SECOND_PLAYER;
+        private int BOARD_SIZE;
+
+        public BoardView()
 	{
 		hexView = new HexComponent();
 		
@@ -62,17 +74,147 @@ public class BoardView extends JPanel
 				}
 			}
 		});
-		
+
+                menubar = new JMenuBar();
+                menubar.setLocation(0, 0);
+                
+                firstPlayer = new JMenu("First Player");
+                secondPlayer = new JMenu("Second Player");
+                boardSize = new JMenu("Board size");
+                menubar.add(firstPlayer);
+                menubar.add(secondPlayer);
+                menubar.add(boardSize);
+                
+                HumanPlayer  = new JCheckBoxMenuItem("HumanPlayer");
+                RandomSimulationPlayer = new JCheckBoxMenuItem("RandomSimulationPlayer");
+                MinimaxPlayer = new JCheckBoxMenuItem("MinimaxPlayer");
+                MonteCarloPlayer = new JCheckBoxMenuItem("MonteCarloPlayer");
+
+                HumanPlayer2  = new JCheckBoxMenuItem("HumanPlayer");
+                RandomSimulationPlayer2 = new JCheckBoxMenuItem("RandomSimulationPlayer");
+                MinimaxPlayer2 = new JCheckBoxMenuItem("MinimaxPlayer");
+                MonteCarloPlayer2 = new JCheckBoxMenuItem("MonteCarloPlayer");
+                
+                four = new JCheckBoxMenuItem("4");
+                four.setSelected(true);
+                five = new JCheckBoxMenuItem("5");
+                six = new JCheckBoxMenuItem("6");
+                seven = new JCheckBoxMenuItem("7");
+                eight = new JCheckBoxMenuItem("8");
+                nine = new JCheckBoxMenuItem("9");
+                ten = new JCheckBoxMenuItem("10");
+                eleven = new JCheckBoxMenuItem("11");
+
+                firstPlayer.add(HumanPlayer);
+                firstPlayer.add(RandomSimulationPlayer);
+                firstPlayer.add(MinimaxPlayer);
+                firstPlayer.add(MonteCarloPlayer);
+                secondPlayer.add(HumanPlayer2);
+                secondPlayer.add(RandomSimulationPlayer2);
+                secondPlayer.add(MinimaxPlayer2);
+                secondPlayer.add(MonteCarloPlayer2);
+                boardSize.add(four);
+                boardSize.add(five);
+                boardSize.add(six);
+                boardSize.add(seven);
+                boardSize.add(eight);
+                boardSize.add(nine);
+                boardSize.add(ten);
+                boardSize.add(eleven);
+
+                HumanPlayer.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        FIRST_PLAYER = new HumanPlayer();
+                    }
+                });
+                RandomSimulationPlayer.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        FIRST_PLAYER = new RandomSimulationPlayer(new int[] {30, 30, 5});
+                    }
+                });
+                MinimaxPlayer.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        FIRST_PLAYER = new MinimaxPlayer();
+                    }
+                });
+                MonteCarloPlayer.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        FIRST_PLAYER = new MonteCarloPlayer();
+                    }
+                });
+
+                HumanPlayer2.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        SECOND_PLAYER = new HumanPlayer();
+                    }
+                });
+                RandomSimulationPlayer2.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        SECOND_PLAYER = new RandomSimulationPlayer(new int[] {30, 30, 5});
+                    }
+                });
+                MinimaxPlayer2.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        SECOND_PLAYER = new MinimaxPlayer();
+                    }
+                });
+                MonteCarloPlayer2.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        SECOND_PLAYER = new MonteCarloPlayer();
+                    }
+                });
+
+                four.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 4;
+                    }
+                });
+                five.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 5;
+                    }
+                });
+                six.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 6;
+                    }
+                });
+                seven.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 7;
+                    }
+                });
+                eight.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 8;
+                    }
+                });
+                nine.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 9;
+                    }
+                });
+                ten.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 10;
+                    }
+                });
+                eleven.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent arg0) {
+                        BOARD_SIZE = 11;
+                    }
+                });
 		newGameButton = new JButton("New Game!");
-		newGameButton.setVisible(false);
+		newGameButton.setVisible(true);
 		final BoardView tempBoardView = this;
+                
 		newGameButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Game game = new Game();
+                            	Game game = new Game(BOARD_SIZE, FIRST_PLAYER, SECOND_PLAYER);
 				game.setBoardView(tempBoardView);
 				new Thread(game).start();
 				
-				newGameButton.setVisible(false);
+				newGameButton.setVisible(true);
 			}
 		});
 		
@@ -80,12 +222,13 @@ public class BoardView extends JPanel
 		this.add(statusLabel);
 		this.add(swapSidesButton);
 		this.add(newGameButton);
-		
+                this.add(menubar);
+
 		FlowLayout layout = new FlowLayout(FlowLayout.CENTER);
 		layout.setHgap(1000);
 		this.setLayout(layout);
 	}
-	
+
 	public void setGame(Game game)
 	{
 		this.game = game;
