@@ -35,7 +35,7 @@ public class Game implements Runnable {
 	 */
 	public Game() {
 
-		this(5, new RandomSimulationPlayer(), new MinimaxPlayer());
+		this(5, new HumanPlayer(), new MonteCarloPlayer());
 
 	}
 	

@@ -522,4 +522,17 @@ public class Board implements Cloneable {
 
         return clone;
     }
+    
+    public LiteBoard getLiteBoard() {
+    	int dimensions = getDimensions();
+    	LiteBoard liteBoard = new LiteBoard(dimensions);
+    	
+    	for (int i = 0; i < dimensions; i++) {
+			for (int j = 0; j < dimensions; j++) {
+				liteBoard.setPiece(i, j, getField(i, j));
+			}
+		}
+    	
+    	return liteBoard;
+    }
 }
