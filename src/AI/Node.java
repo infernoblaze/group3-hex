@@ -249,8 +249,9 @@ public class Node implements Position<HexElement> {
             And_Or a = new And_Or(this.element.board(),root.element.getPlayer()%2+1);
 //            a.groups();
             double valueAnd= a.evaluate();
+            System.out.println("And_Or value: "+valueAnd);
             double valueRes = this.element().board().evaluate(root.element.getPlayer()%2+1);
-            this.element.evaluate(valueAnd +(valueRes*30));
+            this.element.evaluate(valueAnd+valueRes*20);
 ////            System.out.println("EvaluationAnd: "+(valueAnd)+"EvaluationRes: "+(valueRes));
 //            System.out.println(this.element().board().toString());
 ////            this.element().evaluate(this.element().board().evaluate(root.element.getPlayer()%2+1));
@@ -297,7 +298,7 @@ public class Node implements Position<HexElement> {
         return mins.get((int)(Math.random()*mins.size()));
     }
 
-    private double max() {
+    public double max() {
         double max = Integer.MIN_VALUE;
         for (int i = 0; i < children.length; i++) {
             if (children[i].element().getValue() > max) {

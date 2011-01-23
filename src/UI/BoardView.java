@@ -86,6 +86,7 @@ public class BoardView extends JPanel
                 menubar.add(boardSize);
                 
                 HumanPlayer  = new JCheckBoxMenuItem("HumanPlayer");
+                HumanPlayer.setSelected(true);
                 RandomSimulationPlayer = new JCheckBoxMenuItem("RandomSimulationPlayer");
                 MinimaxPlayer = new JCheckBoxMenuItem("MinimaxPlayer");
                 MonteCarloPlayer = new JCheckBoxMenuItem("MonteCarloPlayer");
@@ -94,6 +95,7 @@ public class BoardView extends JPanel
                 RandomSimulationPlayer2 = new JCheckBoxMenuItem("RandomSimulationPlayer");
                 MinimaxPlayer2 = new JCheckBoxMenuItem("MinimaxPlayer");
                 MonteCarloPlayer2 = new JCheckBoxMenuItem("MonteCarloPlayer");
+                MonteCarloPlayer2.setSelected(true);
                 
                 four = new JCheckBoxMenuItem("4");
                 four.setSelected(true);
