@@ -273,7 +273,9 @@ public class Board implements Cloneable {
             }
         }
     }
-
+    public void removePiece(int x, int y) {
+        board[x][y].value = 0;
+    }
     public int[] getLastPiece() {
         return lastPiece;
     }
@@ -415,7 +417,6 @@ public class Board implements Cloneable {
         getRes(2, borderTop, 0);
         double resB = (double) getMinPath();
         value = (PlayerID == 1) ? (resB / resW) : (resW / resB);
-
 //        System.out.println(toString());
 //        System.out.println("resW = " + (int) resW);
 //        System.out.println("resB = " + (int) resB);

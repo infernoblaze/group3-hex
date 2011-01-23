@@ -4,6 +4,7 @@
  */
 package Players;
 
+import AI.And_Or;
 import Game.*;
 import java.util.ArrayList;
 
@@ -14,24 +15,31 @@ import java.util.ArrayList;
 public class NegaMaxPlayer implements Player {
 
     private Game game;
-    private int playerId;
+    private int playerId, Player;
     private int boardDimensions;
+    private Board theBoard;
     private int[][] board;
     private double alpha;
     private double beta;
-    private int[] lastmove;
-    private int[] bestmove;
-    private ArrayList<int[]> possibleMoves;
+    private int[] bestmove, nextmove, lastmove;
+    private ArrayList<int[]> moves;
+    private ArrayList<double[]> levelOne;
+    private ArrayList<double[]> bestMoves;
     private int depth;
-
+    private And_Or and;
 
     public NegaMaxPlayer(int maxDepth) {
         depth = maxDepth;
-        board = game.getBoard().getBoard();
+        nextmove = new int[]{0, 0};
+        lastmove = new int[]{-1, 0};
+        moves = new ArrayList<int[]>();
+        levelOne = new ArrayList<double[]>();
+        bestMoves = new ArrayList<double[]>();
     }
 
     public void setGame(Game theGame) {
         this.game = theGame;
+
     }
 
     public void setPlayerId(int thePlayer) {
@@ -43,65 +51,130 @@ public class NegaMaxPlayer implements Player {
     }
 
     public void switchPlayer() {
-        playerId = playerId%2+1;
+        Player = Player % 2 + 1;
     }
 
     public void setCanSwapSides(boolean state) {
     }
 
     public int[] getNextMove() {
-        alpha = Double.MIN_VALUE;
-        beta = Double.MAX_VALUE;
-        double bestmove = negaMax(depth, alpha, beta);
-
-        return new int[]{0, 0};
+        theBoard = game.getBoard().clone();
+        System.out.println(theBoard.toString());
+        board = theBoard.getBoard();
+        boardDimensions = theBoard.getDimensions();
+        alpha = -10000.0;
+        beta = 10000.0;
+        levelOne.clear();
+        bestMoves.clear();
+        Player = playerId;
+        double best = max(depth, alpha, beta);
+        System.out.println("Best Move : " + best);
+        findBestMove(best);
+        System.out.println("Doing Move: " + bestmove[0] + ", " + bestmove[1]);
+        return bestmove;
     }
 
-    private void doNextMove() {
-        int[] move = possibleMoves.remove(0);
-        int x = move[0];
-        int y = move[1];
-        lastmove = new int[]{x, y, board[x][y]};
-        board[x][y] = playerId;
+
+    private void doMove(int x, int y) {
+        board[x][y] = Player;
+        theBoard.setPiece(x, y, Player);
         switchPlayer();
     }
 
-    private void undoMove() {
-        board[lastmove[0]][lastmove[1]] = lastmove[2];
+    private void reMove(int x, int y) {
+        board[x][y] = 0;
+        theBoard.removePiece(x, y);
         switchPlayer();
     }
 
-    public void findPossibleMoves() {
-        possibleMoves.clear();
+
+    private void findBestMove(double best) {
+        double max = -1000000000;
+        for (int i = 0; i < levelOne.size(); i++) {
+            if (levelOne.get(i)[2] > max) {
+                max = levelOne.get(i)[2];
+            }
+        }
+        for (int i = 0; i < levelOne.size(); i++) {
+            if (levelOne.get(i)[2] == max) {
+                bestMoves.add(levelOne.get(i));
+            }
+        }
+        int number = (int) (Math.random() * bestMoves.size());
+        bestmove = new int[]{(int) bestMoves.get(number)[0], (int) bestMoves.get(number)[1]};
+    }
+
+    private double max(int currentDepth, double alpha, double beta) {
+        if (currentDepth == 0) {
+            if (theBoard.getPieceCount() >= theBoard.getDimensions() * 2 - 1) {
+                if (theBoard.checkEnd() == playerId) {
+                    return 1000;
+                }
+                else if(theBoard.checkEnd() == (playerId%2+1)) {
+                    return -1000;
+                }
+            }
+            and = new And_Or(theBoard, playerId);
+            double val = theBoard.evaluate(playerId)*10+and.evaluate();
+//            System.out.println(val);
+            return val;
+        }
         for (int i = 0; i < boardDimensions; i++) {
             for (int j = 0; j < boardDimensions; j++) {
                 if (board[i][j] == 0) {
-                    possibleMoves.add(new int[]{i, j});
+                    doMove(i, j);
+                    double value = min(currentDepth - 1, alpha, beta);
+                    System.out.println("Minimum of Last Ones: New Node: Depth: "+(depth-currentDepth+1)+", Evaluation : "+value);
+                    if (currentDepth == depth) {
+                        levelOne.add(new double[]{i, j, value});
+                    }
+                    reMove(i, j);
+                    if (value >= beta) {
+                        return beta;
+                    }
+                    if (value > alpha) {
+                        alpha = value;
+                    }
                 }
             }
         }
-    }
-
-    private boolean movesLeft() {
-        return !(possibleMoves.size() == 0);
-    }
-
-    private double negaMax(int depth, double alpha, double beta) {
-        if (depth == 0) {
-            return 0; // evaluate();!!!!!
-        }
-        findPossibleMoves();
-        while (movesLeft()) {
-            doNextMove();
-            double value = -negaMax(depth - 1, -beta, -alpha);
-            undoMove();
-            if (value >= beta) {
-                return beta;
-            }
-            if (value > alpha) {
-                alpha = value;
-            }
-        }
         return alpha;
+    }
+
+    private double min(int currentDepth, double alpha, double beta) {
+        if (currentDepth == 0) {
+            if (theBoard.getPieceCount() >= theBoard.getDimensions() * 2 - 1) {
+                if (theBoard.checkEnd() == playerId) {
+                    return 1000;
+                }
+                else if(theBoard.checkEnd() ==(playerId%2+1)) {
+                    return -1000;
+                }
+            }
+            and = new And_Or(theBoard, playerId);
+            double val = theBoard.evaluate(playerId)*10+and.evaluate();
+//            System.out.println(val);
+            return val;
+        }
+        for (int i = 0; i < boardDimensions; i++) {
+            for (int j = 0; j < boardDimensions; j++) {
+                if (board[i][j] == 0) {
+                    doMove(i, j);
+                    double value = max(currentDepth - 1, alpha, beta);
+                    System.out.println("Maximum of Last Ones: New Node: Depth: "+(depth-currentDepth+1)+", Evaluation : "+value);
+                    if (currentDepth == depth) {
+                        levelOne.add(new double[]{i, j, value});
+                    }
+                    reMove(i, j);
+                    if (value <= alpha) {
+                        return alpha;
+                    }
+                    if (value < beta) {
+                        beta = value;
+                    }
+                }
+            }
+        }
+        return beta;
     }
 }
