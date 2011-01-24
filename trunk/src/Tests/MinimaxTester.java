@@ -27,7 +27,7 @@ public class MinimaxTester
             System.out.println("Game number " + (i + 1));
 
             //Player one = new MonteCarloPlayer();
-            Player one = new MinimaxPlayer(true);
+            Player one = new MinimaxPlayer();
             Player two = new MonteCarloPlayer();
 
             Game tempGame;

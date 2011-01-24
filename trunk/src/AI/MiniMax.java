@@ -16,9 +16,8 @@ public class MiniMax {
     private MiniMaxTree tree;
     private int maxDepth;
     private Node root;
-    private boolean evaluation;
 
-    public MiniMax(HexyBoard rootBoard, int d, boolean e) {
+    public MiniMax(HexyBoard rootBoard, int d) {
         maxDepth = d; 
         tree = new MiniMaxTree(new Node(new HexElement(rootBoard, null), null, null, null , 0, maxDepth));
         root = (Node)tree.root();
@@ -33,7 +32,7 @@ public class MiniMax {
 
 
         Node rooty = (Node) tree.root();
-        root.buildTree(evaluation);
+        root.buildTree();
 //        root.printTree();
 //        tree.count(root);
 //        System.out.println("Tree Size : "+tree.size());

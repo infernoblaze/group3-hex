@@ -136,7 +136,7 @@ public class BoardView extends JPanel
                 });
                 MinimaxPlayer.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
-                        FIRST_PLAYER = new MinimaxPlayer(true);
+                        FIRST_PLAYER = new MinimaxPlayer();
                     }
                 });
                 MonteCarloPlayer.addActionListener(new ActionListener() {
@@ -157,7 +157,7 @@ public class BoardView extends JPanel
                 });
                 MinimaxPlayer2.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent arg0) {
-                        SECOND_PLAYER = new MinimaxPlayer(true);
+                        SECOND_PLAYER = new MinimaxPlayer();
                     }
                 });
                 MonteCarloPlayer2.addActionListener(new ActionListener() {
