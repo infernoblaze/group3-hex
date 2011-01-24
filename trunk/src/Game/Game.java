@@ -33,11 +33,12 @@ public class Game implements Runnable {
 	/**
 	 * Initializes a game and sets the board.
 	 */
-	public Game() {
 
-		this(5, new HumanPlayer(), new MonteCarloPlayer());
 
+         public Game(){
+		this(5, new MonteCarloPlayer(), new MinimaxPlayer(true));
 	}
+
 	
 	public Game(int boardSize, Player playerOne, Player playerTwo) {
 		board = new Board(boardSize);

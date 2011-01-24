@@ -181,55 +181,55 @@ public class Node implements Position<HexElement> {
 //        System.out.println("Depth = " + this.getDepth() + ", Evaluation = " + this.element().getValue());
     }
 
-    public void buildTree() {
+    public void buildTree(boolean e) {
         if (this.isEndNode()) {
-            evaluate();
+            evaluate(e);
             return;
         } else {
             int childrenLength = expandNode().length;
             for (int i = 0; i < childrenLength; i++) {
-                getChildren()[i].buildTree();
+                getChildren()[i].buildTree(e);
             }
         }
-        evaluate();
+        evaluate(e);
     }
 
-    public void ABbuildTree() {
-        if (this.isEndNode()) {
-            return;
-        }
-        int childrenLength = expandNode().length;
-        for (int i = 0; i < childrenLength; i++) {
-            if (getChildren()[i].isEndNode()) {
-                getChildren()[i].evaluate();
-            }
-            if (element().getPlayer() == 1) {
-                if (getChildren()[i].element().getValue() > beta) {
-                    break;
-                }
-            } else {
-                if (getChildren()[i].element().getValue() < alpha) {
-                    break;
-                }
-            }
-            getChildren()[i].alpha = alpha;
-            getChildren()[i].beta = beta;
-//            System.out.println("Child");
-            getChildren()[i].ABbuildTree();
-        }
-        evaluate();
-
-        Node[] siblings = getSiblings();
-        if(siblings!=null)
-        for (int i = 0; i < siblings.length-1; i++) {
-            if (element().getPlayer() == 1) {
-//                System.out.println("Beta = "+siblings[i].beta+"Value = "+element.getValue());
-                siblings[i].beta = element().getValue();
-            } else {
-                siblings[i].alpha = element().getValue();
-            }
-        }
-    }
+//    public void ABbuildTree() {
+//        if (this.isEndNode()) {
+//            return;
+//        }
+//        int childrenLength = expandNode().length;
+//        for (int i = 0; i < childrenLength; i++) {
+//            if (getChildren()[i].isEndNode()) {
+//                getChildren()[i].evaluate();
+//            }
+//            if (element().getPlayer() == 1) {
+//                if (getChildren()[i].element().getValue() > beta) {
+//                    break;
+//                }
+//            } else {
+//                if (getChildren()[i].element().getValue() < alpha) {
+//                    break;
+//                }
+//            }
+//            getChildren()[i].alpha = alpha;
+//            getChildren()[i].beta = beta;
+////            System.out.println("Child");
+//            getChildren()[i].ABbuildTree();
+//        }
+//        evaluate();
+//
+//        Node[] siblings = getSiblings();
+//        if(siblings!=null)
+//        for (int i = 0; i < siblings.length-1; i++) {
+//            if (element().getPlayer() == 1) {
+////                System.out.println("Beta = "+siblings[i].beta+"Value = "+element.getValue());
+//                siblings[i].beta = element().getValue();
+//            } else {
+//                siblings[i].alpha = element().getValue();
+//            }
+//        }
+//    }
 
     public void printTree() {
         for (int i = 0; i < depth; i++) {
@@ -243,7 +243,7 @@ public class Node implements Position<HexElement> {
         }
     }
 
-    private void evaluate() {
+    private void evaluate(boolean e) {
         if (isEndNode()) {
             Node root = (Node)this.tree.root();
             And_Or a = new And_Or(this.element.board(),root.element.getPlayer()%2+1);
@@ -251,7 +251,15 @@ public class Node implements Position<HexElement> {
             double valueAnd= a.evaluate();
             System.out.println("And_Or value: "+valueAnd);
             double valueRes = this.element().board().evaluate(root.element.getPlayer()%2+1);
-            this.element.evaluate(valueAnd+valueRes*20);
+            if(e)
+            {
+            this.element.evaluate(valueRes*30);
+            }
+            else
+            {
+                this.element.evaluate(valueRes*30*valueAnd);
+            }
+
 ////            System.out.println("EvaluationAnd: "+(valueAnd)+"EvaluationRes: "+(valueRes));
 //            System.out.println(this.element().board().toString());
 ////            this.element().evaluate(this.element().board().evaluate(root.element.getPlayer()%2+1));
