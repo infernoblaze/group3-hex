@@ -181,17 +181,17 @@ public class Node implements Position<HexElement> {
 //        System.out.println("Depth = " + this.getDepth() + ", Evaluation = " + this.element().getValue());
     }
 
-    public void buildTree(boolean e) {
+    public void buildTree() {
         if (this.isEndNode()) {
-            evaluate(e);
+            evaluate();
             return;
         } else {
             int childrenLength = expandNode().length;
             for (int i = 0; i < childrenLength; i++) {
-                getChildren()[i].buildTree(e);
+                getChildren()[i].buildTree();
             }
         }
-        evaluate(e);
+        evaluate();
     }
 
 //    public void ABbuildTree() {
@@ -243,22 +243,17 @@ public class Node implements Position<HexElement> {
         }
     }
 
-    private void evaluate(boolean e) {
+    private void evaluate() {
         if (isEndNode()) {
             Node root = (Node)this.tree.root();
             And_Or a = new And_Or(this.element.board(),root.element.getPlayer()%2+1);
 //            a.groups();
             double valueAnd= a.evaluate();
-            System.out.println("And_Or value: "+valueAnd);
+//            System.out.println("And_Or value: "+valueAnd);
             double valueRes = this.element().board().evaluate(root.element.getPlayer()%2+1);
-            if(e)
-            {
+            
             this.element.evaluate(valueRes*30);
-            }
-            else
-            {
-                this.element.evaluate(valueRes*30*valueAnd);
-            }
+            
 
 ////            System.out.println("EvaluationAnd: "+(valueAnd)+"EvaluationRes: "+(valueRes));
 //            System.out.println(this.element().board().toString());
