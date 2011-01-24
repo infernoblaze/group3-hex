@@ -16,18 +16,27 @@ public class MonteCarloPlayer implements Player {
 	
 	private int boardDimensions;
 	
-	private ArrayList<Node> selectedNodes, unsimulatedNodes, unpropagatedNodes;
+	private ArrayList<Node> unsimulatedNodes, unpropagatedNodes;
 	
-	final private float UCTCoeficient = 0.2f;
+	private float UCTCoeficient;
+	private int timeOut;
 	
 	private boolean hasAWinner;
-		
+	
+	public MonteCarloPlayer() {
+		this(0.2f, 2000);
+	}
+	
+	public MonteCarloPlayer(float aUCTCoeficient, int aTimeOut) {
+		UCTCoeficient = aUCTCoeficient;
+		timeOut = aTimeOut;
+	}
+	
 	public int[] getNextMove()
 	{
 		LiteBoard board = game.getBoard().getLiteBoard();
 		boardDimensions = board.getDimensions();
 		
-		selectedNodes = new ArrayList<Node>();
 		unsimulatedNodes = new ArrayList<Node>();
 		unpropagatedNodes = new ArrayList<Node>();
 		
@@ -51,17 +60,14 @@ public class MonteCarloPlayer implements Player {
 		while (!hasAWinner) {
 			if (stepCounter > 10) {
 				stepCounter = 0;
-				if (System.currentTimeMillis() - startTime > 2000) {
+				if (System.currentTimeMillis() - startTime > timeOut) {
 					break;
 				}
 			}
 			
-			select(root);
-			
-			for (Node node : selectedNodes) {
-				expandRandomely(node, 1, getOpponent(node.lastPlayer));
-			}
-			selectedNodes.clear();
+			Node selectedNode = select(root);
+			expandRandomely(selectedNode, 10, getOpponent(selectedNode.lastPlayer));
+			expandAll(selectedNode, getOpponent(selectedNode.lastPlayer));
 			
 			simulate();
 			backpropagate();
@@ -75,7 +81,7 @@ public class MonteCarloPlayer implements Player {
 		for (Node node : root.children) {
 			float winRatio = node.wins / (float)(node.wins + node.loses);
 			
-//			System.out.println(Arrays.toString(node.board.getLastPiece()) + ": " + winRatio);
+			System.out.println(Arrays.toString(node.board.getLastPiece()) + ": " + winRatio + " (" + node.wins + "/" + node.loses + ") visits: " + node.visits + " UCTValue: " + calculateUCTValue(node));
 			
 			if (node.value > 1000000) {
 				bestNode = node;
@@ -88,10 +94,12 @@ public class MonteCarloPlayer implements Player {
 			}
 		}
 		
+		System.out.println("\n");
+		
 		return bestNode.board.getLastPiece();
 	}
 	
-	private void select(Node rootNode) {
+	private Node select(Node rootNode) {
 		Node selectedNode = rootNode;
 		
 		while (!selectedNode.children.isEmpty()) {
@@ -106,34 +114,20 @@ public class MonteCarloPlayer implements Player {
 				}
 			}
 
-//			System.out.println(maxUCTValue);
-			if (maxUCTValue < 0.3) {
-//				System.out.println("Negative maxUCTValue calculated.");
-				int childrenCount = selectedNode.children.size();
-				if (childrenCount + selectedNode.board.getPieceCount() < boardDimensions * boardDimensions)
-					break;						
-			}
-
 			selectedNode = bestNode;
 		}
 		
-		selectedNodes.add(selectedNode);
+		return selectedNode;
 	}
 	
 	private float calculateUCTValue(Node node) {
-		if (node.parent == null)
-			return 0;
-		
-		if (node.visits == 0) {
-			System.out.println("Something's wrong with the node visits.");
-			node.visits = 1;
-		}
-		
 		return node.wins / (node.wins + node.loses) +
-				(float)Math.sqrt(UCTCoeficient * Math.log(node.parent.visits) / node.visits); 
+				UCTCoeficient * (float)Math.sqrt(Math.log(node.parent.visits) / node.visits); 
 	}
 	
 	private void expandAll(Node node, int player) {
+//		System.out.println("Expanding all.");
+		
 		ArrayList<Integer[]> blankFields = getBlankFields(node.board);
 				
 		for (Integer[] nextMove : blankFields) {
@@ -152,20 +146,42 @@ public class MonteCarloPlayer implements Player {
 		ArrayList<Integer[]> blankFields = getBlankFields(node.board);
 		numberOfChildren = numberOfChildren < blankFields.size() ? numberOfChildren : blankFields.size();
 		
+		boolean nodeHasNoChildren = node.children.isEmpty();
+		
 		for (int i = 0; i < numberOfChildren; i++) {
 			int r = (int) (Math.random() * blankFields.size());
 			Integer[] nextMove = blankFields.get(r);
 			blankFields.remove(r);
 
-			LiteBoard childBoard = node.board.clone();			
-			childBoard.setPiece(nextMove[0].intValue(), nextMove[1].intValue(), player);
+			Node newNode = null;
 			
-			Node childNode = new Node(childBoard, player);
-			childNode.parent = node;
-			node.children.add(childNode);		
+			if (!nodeHasNoChildren) {
+				for (Node childrenNode : node.children) {
+					int[] lastPiece = childrenNode.board.getLastPiece();
+					if (lastPiece[0] == nextMove[0].intValue() &&
+							lastPiece[1] == nextMove[1].intValue()) {
+						newNode = childrenNode;
+//						System.out.println("Found an existing node");
+						break;
+					}
+				}
+			}
 			
-			unsimulatedNodes.add(childNode);
+			if (newNode == null) {
+				LiteBoard newBoard = node.board.clone();
+				newBoard.setPiece(nextMove[0].intValue(), nextMove[1].intValue(), player);
+				
+				newNode = new Node(newBoard, player);
+				newNode.parent = node;
+				node.children.add(newNode);
+			}
+			
+			unsimulatedNodes.add(newNode);
 		}
+
+//		if (boardDimensions * boardDimensions - node.board.getPieceCount() < node.children.size() * 2) {
+//			expandAll(node, player);
+//		}
 	}
 
 	private void simulate() {
