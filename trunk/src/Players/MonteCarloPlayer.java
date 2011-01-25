@@ -20,17 +20,18 @@ public class MonteCarloPlayer implements Player {
 	private ArrayList<Node> unsimulatedNodes, unpropagatedNodes;
 	
 	private float UCTCoeficient;
-	private int timeout;
+	private int timeout, countout;
 	
 	private boolean hasAWinner;
 	
 	public MonteCarloPlayer() {
-		this(1.0f, 4000, true);
+		this(1.0f, 4000, 1000000, true);
 	}
 	
-	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, boolean swapping) {
+	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, int aCountout, boolean swapping) {
 		UCTCoeficient = aUCTCoeficient;
 		timeout = aTimeout;
+		countout = aCountout;
 		this.swappingAllowed = swapping;
 	}
 	
@@ -82,7 +83,7 @@ public class MonteCarloPlayer implements Player {
 		while (!hasAWinner) {
 			if (stepCounter > 10) {
 				stepCounter = 0;
-				if (System.currentTimeMillis() - startTime > timeout) {
+				if (System.currentTimeMillis() - startTime > timeout || root.visits > countout) {
 					break;
 				}
 			}
