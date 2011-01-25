@@ -25,15 +25,13 @@ public class MonteCarloPlayer implements Player {
 	private boolean hasAWinner;
 	
 	public MonteCarloPlayer() {
-		this(0.2f, 2000, true, false);
+		this(0.2f, 2000, true);
 	}
 	
-	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, boolean swappingAllowed, boolean threadedSimulations) {
+	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, boolean swappingAllowed) {
 		UCTCoeficient = aUCTCoeficient;
 		timeout = aTimeout;
 		this.swappingAllowed = swappingAllowed;
-		
-		this.threadedSimulations = threadedSimulations;
 	}
 	
 	public int[] getNextMove()
@@ -228,11 +226,7 @@ public class MonteCarloPlayer implements Player {
 
 	private long totalSimulationTime;
 	
-	private int simulationCount, simulatedCount;
-	
-	private synchronized void simulate() {
-		simulationCount = 0;
-		simulatedCount = 0;
+	private void simulate() {
 		long startTime = System.nanoTime();
 		
 		int perfectPieceCount = game.getBoard().getPieceCount() + 1;
@@ -240,14 +234,6 @@ public class MonteCarloPlayer implements Player {
 		for (Node node : unsimulatedNodes) {
 //			if (!node.children.isEmpty())
 //			continue;
-			
-			simulationCount++;
-			if (threadedSimulations) {
-				Simulation simulation = new Simulation(node, this, perfectPieceCount);
-				new Thread(simulation).start();
-				
-				continue;
-			}
 			
 			LiteBoard simulatedBoard = node.board.clone();
 			int end[] = simulateGame(simulatedBoard, node.lastPlayer);
@@ -265,20 +251,12 @@ public class MonteCarloPlayer implements Player {
 			
 			unpropagatedNodes.add(node);
 		}
-		
-		if (threadedSimulations) {
-			try {
-				this.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		
+				
 		unsimulatedNodes.clear();
 		
 		totalSimulationTime += System.nanoTime() - startTime;
 	}
-	
+		
 	private int[] simulateGame(LiteBoard board, int player) {
 		if (board.getPieceCount() > board.getDimensions() * 2 - 2) {
 			int winner = LiteBoard.checkEnd(board);
@@ -298,73 +276,6 @@ public class MonteCarloPlayer implements Player {
 		return simulateGame(board, opponent);
 	}
 	
-	private synchronized void simulated(Node node) {
-		simulatedCount++;
-		unpropagatedNodes.add(node);
-		
-		if (simulatedCount >= simulationCount) {
-			this.notify();
-		}
-	}
-	
-	private synchronized void simulatedPerfect(Node node) {
-		hasAWinner = true;
-		simulated(node);
-	}
-	
-	private class Simulation implements Runnable {
-		private Node node;
-		private MonteCarloPlayer player;
-		private int PPcount;
-		
-		public Simulation(Node node, MonteCarloPlayer player, int PPCount) {
-			this.node = node;
-			this.player = player;
-			this.PPcount = PPCount;
-		}
-		
-		public void run() {
-			
-			LiteBoard simulatedBoard = node.board.clone();
-			int end[] = simulateGame(simulatedBoard, node.lastPlayer);
-			if (end[0] == playerId)
-				if (end[1] == PPcount) {
-					node.value += Float.POSITIVE_INFINITY;
-					player.simulatedPerfect(node);
-//					unpropagatedNodes.add(node);
-//					hasAWinner = true;
-					return;
-				}
-				else
-					node.value += 1.0f;
-			else
-				node.value += -1.0f;
-			
-			player.simulated(node);
-//			unpropagatedNodes.add(node);
-			
-		}
-		
-		private int[] simulateGame(LiteBoard board, int player) {
-			if (board.getPieceCount() > board.getDimensions() * 2 - 2) {
-				int winner = LiteBoard.checkEnd(board);
-				if (winner != 0)
-					return new int[] {winner, board.getPieceCount()};
-			}
-			
-			int[][] blankFields = getBlankFields(board);
-			
-			int r = (int) (Math.random() * blankFields.length);
-			int[] nextMove = blankFields[r];
-			
-			int opponent = getOpponent(player);
-			
-			board.setPiece(nextMove[0], nextMove[1], opponent);
-
-			return simulateGame(board, opponent);
-		}
-		
-	}
 	
 	private void backpropagate() {
 		for (Node node : unpropagatedNodes) {
