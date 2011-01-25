@@ -25,13 +25,13 @@ public class MonteCarloPlayer implements Player {
 	private boolean hasAWinner;
 	
 	public MonteCarloPlayer() {
-		this(0.2f, 2000, true);
+		this(1.0f, 4000, true);
 	}
 	
-	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, boolean swappingAllowed) {
+	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, boolean swapping) {
 		UCTCoeficient = aUCTCoeficient;
 		timeout = aTimeout;
-		this.swappingAllowed = swappingAllowed;
+		this.swappingAllowed = swapping;
 	}
 	
 	public int[] getNextMove()
@@ -64,7 +64,7 @@ public class MonteCarloPlayer implements Player {
 		expandAll(root, playerId);
 		
 		Node swappedNode = null;
-		if (swappingAllowed && canSwapSides) {
+		if (canSwapSides) {
 			Board swappedClumsyBoard = game.getBoard().clone();
 			swappedClumsyBoard.swapSides();
 			LiteBoard swappedBoard = swappedClumsyBoard.getLiteBoard();
@@ -168,9 +168,7 @@ public class MonteCarloPlayer implements Player {
 			unsimulatedNodes.add(newNode);
 		}
 		
-		if (swappingAllowed && oponentMightSwap && node.board.getPieceCount() == 1 && player == getOpponent(playerId)) {
-			System.out.println("Oponent might swap!");
-			
+		if (oponentMightSwap && node.board.getPieceCount() == 1 && player == getOpponent(playerId)) {
 			LiteBoard swappedBoard = new LiteBoard(boardDimensions);
 			
 			int[] lastPiece = node.board.getLastPiece();
@@ -360,7 +358,10 @@ public class MonteCarloPlayer implements Player {
 	}
 
 	public void setCanSwapSides(boolean state) {
-		canSwapSides = state;
+		if (swappingAllowed)
+			canSwapSides = state;			
+		else
+			canSwapSides = false;
 	}
 	
 }
