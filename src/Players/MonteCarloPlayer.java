@@ -15,21 +15,23 @@ public class MonteCarloPlayer implements Player {
 	private int playerId;
 	
 	private int boardDimensions;
+	private boolean canSwapSides, swappingAllowed, oponentMightSwap;
 	
 	private ArrayList<Node> unsimulatedNodes, unpropagatedNodes;
 	
 	private float UCTCoeficient;
-	private int timeOut;
+	private int timeout;
 	
 	private boolean hasAWinner;
 	
 	public MonteCarloPlayer() {
-		this(0.2f, 2000);
+		this(0.2f, 2000, true);
 	}
 	
-	public MonteCarloPlayer(float aUCTCoeficient, int aTimeOut) {
+	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, boolean swappingAllowed) {
 		UCTCoeficient = aUCTCoeficient;
-		timeOut = aTimeOut;
+		timeout = aTimeout;
+		this.swappingAllowed = swappingAllowed;
 	}
 	
 	public int[] getNextMove()
@@ -41,17 +43,37 @@ public class MonteCarloPlayer implements Player {
 		unpropagatedNodes = new ArrayList<Node>();
 		
 		hasAWinner = false;
+		totalSimulationTime = 0;
+		
+		if (swappingAllowed && board.getPieceCount() == 0) {
+			oponentMightSwap = true;
+		} else {
+			oponentMightSwap = false;
+		}
 		
 		// 1. Selection
 		// 2. Expansion
 		// 3. Simulation
-		// 4. Backpropagation
+		// 4. Back-propagation
 		
 		Node root = new Node(board.clone());
+		root.blankFields = getBlankFields(board);
 
 		long startTime = System.currentTimeMillis();
 		
 		expandAll(root, playerId);
+		
+		Node swappedNode = null;
+		if (swappingAllowed && canSwapSides) {
+			Board swappedClumsyBoard = game.getBoard().clone();
+			swappedClumsyBoard.swapSides();
+			LiteBoard swappedBoard = swappedClumsyBoard.getLiteBoard();
+			swappedNode = new Node(swappedBoard, playerId);
+			swappedNode.parent = root;
+			swappedNode.blankFields = getBlankFields(swappedBoard);
+			root.children.add(swappedNode);
+			unsimulatedNodes.add(swappedNode);
+		}
 
 		simulate();		
 		backpropagate();
@@ -60,13 +82,13 @@ public class MonteCarloPlayer implements Player {
 		while (!hasAWinner) {
 			if (stepCounter > 10) {
 				stepCounter = 0;
-				if (System.currentTimeMillis() - startTime > timeOut) {
+				if (System.currentTimeMillis() - startTime > timeout) {
 					break;
 				}
 			}
 			
 			Node selectedNode = select(root);
-			expandRandomely(selectedNode, 10, getOpponent(selectedNode.lastPlayer));
+			expandRandomly(selectedNode, 10, getOpponent(selectedNode.lastPlayer));
 			expandAll(selectedNode, getOpponent(selectedNode.lastPlayer));
 			
 			simulate();
@@ -81,7 +103,7 @@ public class MonteCarloPlayer implements Player {
 		for (Node node : root.children) {
 			float winRatio = node.wins / (float)(node.wins + node.loses);
 			
-			System.out.println(Arrays.toString(node.board.getLastPiece()) + ": " + winRatio + " (" + node.wins + "/" + node.loses + ") visits: " + node.visits + " UCTValue: " + calculateUCTValue(node));
+//			System.out.println(Arrays.toString(node.board.getLastPiece()) + ": " + winRatio + " (" + node.wins + "/" + node.loses + ") visits: " + node.visits + " UCTValue: " + calculateUCTValue(node));
 			
 			if (node.value > 1000000) {
 				bestNode = node;
@@ -94,9 +116,15 @@ public class MonteCarloPlayer implements Player {
 			}
 		}
 		
-		System.out.println("\n");
+		System.out.println("Approximate time spent while simulating: " + totalSimulationTime);
+		System.out.println("Total visits: " + root.visits + "\n");
 		
-		return bestNode.board.getLastPiece();
+		int[] nextMove = bestNode.board.getLastPiece();
+		
+		if (canSwapSides && bestNode == swappedNode)
+			nextMove = new int[] {-1, -1};
+		
+		return nextMove;
 	}
 	
 	private Node select(Node rootNode) {
@@ -128,38 +156,52 @@ public class MonteCarloPlayer implements Player {
 	private void expandAll(Node node, int player) {
 //		System.out.println("Expanding all.");
 		
-		ArrayList<Integer[]> blankFields = getBlankFields(node.board);
-				
-		for (Integer[] nextMove : blankFields) {
-			LiteBoard childBoard = node.board.clone();			
-			childBoard.setPiece(nextMove[0].intValue(), nextMove[1].intValue(), player);
+		for (int[] nextMove : node.blankFields) {
+			LiteBoard newBoard = node.board.clone();			
+			newBoard.setPiece(nextMove[0], nextMove[1], player);
 			
-			Node childNode = new Node(childBoard, player);
-			childNode.parent = node;
-			node.children.add(childNode);	
+			Node newNode = new Node(newBoard, player);
+			newNode.parent = node;
+			newNode.blankFields = getBlankFields(newBoard);
+			node.children.add(newNode);	
 			
-			unsimulatedNodes.add(childNode);
+			unsimulatedNodes.add(newNode);
 		}
+		
+		if (swappingAllowed && oponentMightSwap && node.board.getPieceCount() == 1 && player == getOpponent(playerId)) {
+			System.out.println("Oponent might swap!");
+			
+			LiteBoard swappedBoard = new LiteBoard(boardDimensions);
+			
+			int[] lastPiece = node.board.getLastPiece();
+			swappedBoard.setPiece(lastPiece[0], lastPiece[1], getOpponent(playerId));
+			
+			Node swappedNode = new Node(swappedBoard, getOpponent(playerId));
+			swappedNode.parent = node;
+			swappedNode.blankFields = getBlankFields(swappedBoard);
+			node.children.add(swappedNode);
+			unsimulatedNodes.add(swappedNode);
+		}
+		
 	}
 	
-	private void expandRandomely(Node node, int numberOfChildren, int player) {
-		ArrayList<Integer[]> blankFields = getBlankFields(node.board);
-		numberOfChildren = numberOfChildren < blankFields.size() ? numberOfChildren : blankFields.size();
+	private void expandRandomly(Node node, int numberOfChildren, int player) {
+		int[][] blankFields = node.blankFields;
+		numberOfChildren = numberOfChildren < blankFields.length ? numberOfChildren : blankFields.length;
 		
 		boolean nodeHasNoChildren = node.children.isEmpty();
 		
 		for (int i = 0; i < numberOfChildren; i++) {
-			int r = (int) (Math.random() * blankFields.size());
-			Integer[] nextMove = blankFields.get(r);
-			blankFields.remove(r);
+			int r = (int) (Math.random() * blankFields.length);
+			int[] nextMove = blankFields[r];
 
 			Node newNode = null;
 			
 			if (!nodeHasNoChildren) {
 				for (Node childrenNode : node.children) {
 					int[] lastPiece = childrenNode.board.getLastPiece();
-					if (lastPiece[0] == nextMove[0].intValue() &&
-							lastPiece[1] == nextMove[1].intValue()) {
+					if (lastPiece[0] == nextMove[0] &&
+							lastPiece[1] == nextMove[1]) {
 						newNode = childrenNode;
 //						System.out.println("Found an existing node");
 						break;
@@ -169,22 +211,24 @@ public class MonteCarloPlayer implements Player {
 			
 			if (newNode == null) {
 				LiteBoard newBoard = node.board.clone();
-				newBoard.setPiece(nextMove[0].intValue(), nextMove[1].intValue(), player);
+				newBoard.setPiece(nextMove[0], nextMove[1], player);
 				
 				newNode = new Node(newBoard, player);
 				newNode.parent = node;
+				newNode.blankFields = getBlankFields(newBoard);
 				node.children.add(newNode);
 			}
 			
 			unsimulatedNodes.add(newNode);
 		}
 
-//		if (boardDimensions * boardDimensions - node.board.getPieceCount() < node.children.size() * 2) {
-//			expandAll(node, player);
-//		}
 	}
 
+	long totalSimulationTime;
+	
 	private void simulate() {
+		long startTime = System.nanoTime();
+		
 		int perfectPiceCount = game.getBoard().getPieceCount() + 1;
 		
 		for (Node node : unsimulatedNodes) {
@@ -209,6 +253,8 @@ public class MonteCarloPlayer implements Player {
 		}
 		
 		unsimulatedNodes.clear();
+		
+		totalSimulationTime += System.nanoTime() - startTime;
 	}
 	
 	private int[] simulateGame(LiteBoard board, int player) {
@@ -218,14 +264,14 @@ public class MonteCarloPlayer implements Player {
 				return new int[] {winner, board.getPieceCount()};
 		}
 		
-		ArrayList<Integer[]> blankFields = getBlankFields(board);
+		int[][] blankFields = getBlankFields(board);
 		
-		int r = (int) (Math.random() * blankFields.size());
-		Integer[] nextMove = blankFields.get(r);
+		int r = (int) (Math.random() * blankFields.length);
+		int[] nextMove = blankFields[r];
 		
 		int opponent = getOpponent(player);
 		
-		board.setPiece(nextMove[0].intValue(), nextMove[1].intValue(), opponent);
+		board.setPiece(nextMove[0], nextMove[1], opponent);
 
 		return simulateGame(board, opponent);
 	}
@@ -256,15 +302,19 @@ public class MonteCarloPlayer implements Player {
 		backpropagateNode(node.parent, value);
 	}
 	
-	private ArrayList<Integer[]> getBlankFields(LiteBoard board) {
-		ArrayList<Integer[]> blankFields = new ArrayList<Integer[]>();
-		for (int i = 0; i < boardDimensions; i++)
-			for (int j = 0; j < boardDimensions; j++)
-				if (board.getPiece(i, j) == 0)
-				{
-					blankFields.add(new Integer[] {i, j});
+	private int[][] getBlankFields(LiteBoard board) {
+		int[][] blankFields = new int[boardDimensions * boardDimensions - board.getPieceCount()][2];
+		int field = 0;
+		for (int i = 0; i < boardDimensions; i++) {
+			for (int j = 0; j < boardDimensions; j++) {
+				if (board.getPiece(i, j) == 0) {
+					blankFields[field][0] = i;
+					blankFields[field][1] = j;
+					field++;
 				}
-
+			}
+		}
+		
 		return blankFields;
 	}
 	
@@ -294,6 +344,7 @@ public class MonteCarloPlayer implements Player {
 		public float value;
 		public int visits, wins, loses;
 		public int lastPlayer;
+		public int[][] blankFields;
 
 		public Node(LiteBoard board) {
 			children = new ArrayList<Node>();
@@ -305,17 +356,10 @@ public class MonteCarloPlayer implements Player {
 			this.board = board;
 			this.lastPlayer = lastPlayer;
 		}
-		
-		public final static Comparator<Node> getValueComparator() {
-			return new Comparator<Node>() {
-				public int compare(Node a, Node b) {
-					return (int)(b.value - a.value);
-				}
-			};
-		}
 	}
 
 	public void setCanSwapSides(boolean state) {
+		canSwapSides = state;
 	}
 	
 }
