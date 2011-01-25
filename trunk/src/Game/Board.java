@@ -526,14 +526,16 @@ public class Board implements Cloneable {
     
     public LiteBoard getLiteBoard() {
     	int dimensions = getDimensions();
-    	LiteBoard liteBoard = new LiteBoard(dimensions);
+    	byte[][] boardArray = new byte[dimensions][dimensions];
+    	
+    	
     	
     	for (int i = 0; i < dimensions; i++) {
 			for (int j = 0; j < dimensions; j++) {
-				liteBoard.setPiece(i, j, getField(i, j));
+				boardArray[i][j] = (byte)getField(i, j);
 			}
 		}
     	
-    	return liteBoard;
+    	return new LiteBoard(boardArray);
     }
 }
