@@ -24,10 +24,20 @@ public class MonteCarloPlayer implements Player {
 	
 	private boolean hasAWinner;
 	
+	/**
+	 * Sets up the default configuration of Monte-Carlo
+	 */
 	public MonteCarloPlayer() {
-		this(1.0f, 4000, 1000000, true);
+		this(1.0f, 4000, 10000, true);
 	}
 	
+	/**
+	 * Constructor for Monte-Carlo Tree Search player
+	 * @param aUCTCoeficient The coefficient for UCT value
+	 * @param aTimeout Maximum time of tree expansion
+	 * @param aCountout Maximum node count of node visits
+	 * @param swapping Enables ability to swap board
+	 */
 	public MonteCarloPlayer(float aUCTCoeficient, int aTimeout, int aCountout, boolean swapping) {
 		UCTCoeficient = aUCTCoeficient;
 		timeout = aTimeout;
@@ -128,6 +138,11 @@ public class MonteCarloPlayer implements Player {
 		return nextMove;
 	}
 	
+	/**
+	 * Selects a node based on UCT value
+	 * @param rootNode Node to start search with
+	 * @return The best leaf node
+	 */
 	private Node select(Node rootNode) {
 		Node selectedNode = rootNode;
 		
@@ -149,11 +164,21 @@ public class MonteCarloPlayer implements Player {
 		return selectedNode;
 	}
 	
+	/**
+	 * Calculates the UCT value for a node
+	 * @param node The node to get evaluated
+	 * @return Calculated UCT vcore
+	 */
 	private float calculateUCTValue(Node node) {
 		return node.wins / (node.wins + node.loses) +
 				UCTCoeficient * (float)Math.sqrt(Math.log(node.parent.visits) / node.visits); 
 	}
 	
+	/**
+	 * Expands all children nodes of the node
+	 * @param node The node to get expanded
+	 * @param player The player which turn it is
+	 */
 	private void expandAll(Node node, int player) {
 //		System.out.println("Expanding all.");
 		
@@ -184,6 +209,12 @@ public class MonteCarloPlayer implements Player {
 		
 	}
 	
+	/**
+	 * Expands number of node's children 
+	 * @param node The node to expand
+	 * @param numberOfChildren The number of random children expanded
+	 * @param player The player which turn it is
+	 */
 	private void expandRandomly(Node node, int numberOfChildren, int player) {
 		int[][] blankFields = node.blankFields;
 		numberOfChildren = numberOfChildren < blankFields.length ? numberOfChildren : blankFields.length;
@@ -225,6 +256,9 @@ public class MonteCarloPlayer implements Player {
 
 	private long totalSimulationTime;
 	
+	/**
+	 * Runs simulations for all recently expanded nodes
+	 */
 	private void simulate() {
 		long startTime = System.nanoTime();
 		
@@ -255,7 +289,13 @@ public class MonteCarloPlayer implements Player {
 		
 		totalSimulationTime += System.nanoTime() - startTime;
 	}
-		
+	
+	/**
+	 * Recursively simulates a random game
+	 * @param board The board of the random game
+	 * @param player The player which turn it is
+	 * @return Array of the winner and the piece count on the board at winning situation
+	 */
 	private int[] simulateGame(LiteBoard board, int player) {
 		if (board.getPieceCount() > board.getDimensions() * 2 - 2) {
 			int winner = LiteBoard.checkEnd(board);
@@ -275,7 +315,9 @@ public class MonteCarloPlayer implements Player {
 		return simulateGame(board, opponent);
 	}
 	
-	
+	/**
+	 * Back-propagates the results of recently simulated games
+	 */
 	private void backpropagate() {
 		for (Node node : unpropagatedNodes) {
 			if (!node.children.isEmpty())
@@ -287,6 +329,11 @@ public class MonteCarloPlayer implements Player {
 		unpropagatedNodes.clear();
 	}
 	
+	/**
+	 * Recursively back-propagates a node
+	 * @param node The node that is back-propagated
+	 * @param value The value
+	 */
 	private void backpropagateNode(Node node, float value) {
 		node.visits++;
 		if (value > 0)
@@ -302,6 +349,11 @@ public class MonteCarloPlayer implements Player {
 		backpropagateNode(node.parent, value);
 	}
 	
+	/**
+	 * Returns all possible moves of the board
+	 * @param board The board to be examined
+	 * @return An array of all possible moves
+	 */
 	private int[][] getBlankFields(LiteBoard board) {
 		int[][] blankFields = new int[boardDimensions * boardDimensions - board.getPieceCount()][2];
 		int field = 0;
@@ -318,6 +370,11 @@ public class MonteCarloPlayer implements Player {
 		return blankFields;
 	}
 	
+	/**
+	 * Return the opponent player
+	 * @param aPlayer The player
+	 * @return The opponent player
+	 */
 	private int getOpponent(int aPlayer) {
 		return (aPlayer == Game.PLAYER_ONE ? Game.PLAYER_TWO : Game.PLAYER_ONE);
 	}
@@ -337,6 +394,9 @@ public class MonteCarloPlayer implements Player {
 		return this.playerId;
 	}
 	
+	/**
+	 * A class that represents a node 
+	 */
 	private static class Node {
 		public Node parent;
 		public ArrayList<Node> children;
