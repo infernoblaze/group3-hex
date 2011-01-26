@@ -3,8 +3,12 @@ package Game;
 import java.util.ArrayList;
 
 /**
- * This class represents a game board. Keep it simple.
+ * @author Jose Sue Smith
+ * @author Martins Spilners
+ * @author Lukas Kang
+ * @version 26.01.2011
  *
+ * This class represents the board of the game
  */
 public class Board implements Cloneable {
 
@@ -55,82 +59,6 @@ public class Board implements Cloneable {
             return y;
         }
     }
-
-    public class Group { // NEW CLASS!!!
-        Cell[] cells;
-        Cell[] neighbours;
-        private int size, playerID;
-
-        public Group(Cell aCell) {
-            cells = new Cell[1];
-            cells[0] = aCell;
-            size = 1;
-            neighbours = aCell.getNeighbours();
-            playerID = aCell.getValue();
-        }
-
-        public Cell[] getCells() {
-            return cells;
-        }
-
-        public int size() {
-            return size;
-        }
-
-        public Cell[] getNeighbours() {
-            return neighbours;
-        }
-
-        public void add(Group aGroup) {
-            for(int i = size ; i < size+aGroup.size() ; i++)
-            cells[i] = aGroup.getCells()[i-size];
-            size+=aGroup.size();
-            Cell[] oldNeighbours = neighbours;
-            Cell[] newNeighbours = aGroup.getNeighbours();
-            neighbours = getDistinctCells(oldNeighbours, newNeighbours);
-        }
-
-        public Cell[] getDistinctCells(Cell[] a, Cell[] b) {
-            int number;
-            Cell[] newCells = new Cell[a.length+b.length];
-            for(int i = 0 ; i < a.length ; i++) {
-                newCells[i] = a[i];
-            }
-            for(int j = 0 ; j < b.length ; j++) {
-                newCells[j+a.length] = b[j];
-            }
-            number = newCells.length;
-            for(int i = 0 ; i < newCells.length ; i++) {
-                for(int j = 0 ; j < newCells.length ; j++) {
-                    if(newCells[i] == newCells[j]) {
-                        newCells[i] = null;
-                        newCells[j] = null;
-                        number -=2;
-                    }
-                }
-            }
-            Cell[] Cells = new Cell[number];
-            int counter = 0;
-            for(int i = 0 ; i < newCells.length ; i++) {
-                if(newCells[i] != null) {
-                    Cells[counter] = newCells[i];
-                    counter++;
-                }
-            }
-            return Cells;
-        }
-    }
-
-    public boolean isBridge(Cell a, Cell b) {
-            return ((a.x == b.x-1 && a.y == b.y+2) ||
-                    (a.x == b.x+1 && a.y == b.y+1) ||
-                    (a.x == b.x+2 && a.y == b.y-1) ||
-                    (a.x == b.x-2 && a.y == b.y+1) ||
-                    (a.x == b.x-1 && a.y == b.y-1) ||
-                    (a.x == b.x+1 && a.y == b.y-2));
-    }
-
-
     private int size, counter;
     private Cell[][] board;
     private Cell borderLeft, borderRight, borderTop, borderBottom;
@@ -168,16 +96,10 @@ public class Board implements Cloneable {
         }
 
         findNeighbourCells();
-
-//        for (int i = 0; i < dimensions; i++) {
-//            for (int j = 0; j < dimensions; j++) {
-//                board[i][j].links = new Link[]{new Link(board[i][j], board[i][j].nwCell), new Link(board[i][j], board[i][j].wCell), new Link(board[i][j], board[i][j].neCell), new Link(board[i][j], board[i][j].seCell), new Link(board[i][j], board[i][j].eCell), new Link(board[i][j], board[i][j].swCell)};
-//
-//            }
-//        }
-
     }
-
+    /**
+     * this method sets connects all cells with their neighbouring cells
+     */
     private void findNeighbourCells() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -273,9 +195,19 @@ public class Board implements Cloneable {
             }
         }
     }
+    /**
+     * Remove a piece from the board
+     * @param x the x coordinate from the piece to be removed
+     * @param y the y coordinate foem the piece to be removed
+     */
     public void removePiece(int x, int y) {
         board[x][y].value = 0;
     }
+
+    /**
+     * Returns the last piece which was placed on the board
+     * @return the last piece which was placed on the board
+     */
     public int[] getLastPiece() {
         return lastPiece;
     }
@@ -329,6 +261,12 @@ public class Board implements Cloneable {
         return board[x][y].value;
     }
 
+    /**
+     * returns a specific cell
+     * @param x the x coordinate of the cell
+     * @param y the y coordinate of the cell
+     * @return the specific cell
+     */
     public Cell getCell(int x, int y) {
         return board[x][y];
     }
@@ -355,6 +293,13 @@ public class Board implements Cloneable {
     }
     private boolean[][] checkedFields;
 
+    /**
+     * Looks whether there is a complete path for one of the players
+     * @param playerId the player for which the path should be looked for
+     * @param x the x coordinate from where to start looking for a path
+     * @param y the y coordinate from where to start looking for a path
+     * @return true if there is a path
+     */
     private boolean findPath(int playerId, int x, int y) {
         Cell cell = this.getCell(x, y);
         checkedFields[x][y] = true;
@@ -380,6 +325,11 @@ public class Board implements Cloneable {
         return false;
     }
 
+    /**
+     *
+     * @return a string representation of the board
+     */
+    @Override
     public String toString() {
         String string = "";
         for (int i = 0; i < size; i++) {
@@ -398,14 +348,10 @@ public class Board implements Cloneable {
     }
 
     /**
-     * @deprecated Please use toString instead.
+     * evaluates the board for one player
+     * @param PlayerID the player the board is evaluated for
+     * @return the value of the board
      */
-    public void printBoard() {
-        System.out.println("Deprecated, please use toString()");
-
-        System.out.println(toString());
-    }
-
     public double evaluate(int PlayerID) {
         double value = 0;
         checkedFields = new boolean[size][size];
@@ -417,16 +363,18 @@ public class Board implements Cloneable {
         getRes(2, borderTop, 0);
         double resB = (double) getMinPath();
         value = (PlayerID == 1) ? (resB / resW) : (resW / resB);
-//        System.out.println(toString());
-//        System.out.println("resW = " + (int) resW);
-//        System.out.println("resB = " + (int) resB);
-//        System.out.println("Value = " + value);
         return value;
     }
     private ArrayList<Integer> pathResistances = new ArrayList<Integer>();
 
+    /**
+     * calculates the electrical resistance piece by piece for one player
+     * @param PlayerID the player
+     * @param current the start cell
+     * @param score the score: initially 0
+     */
+
     public void getRes(int PlayerID, Cell current, int score) {
-//        System.out.println(PlayerID + ": Current Cell: X= " + current.x + ", Y = " + current.y + ", Value = " + current.value);
         if (current.getX() != -1) {
             checkedFields[current.getX()][current.getY()] = true;
         }
@@ -439,7 +387,6 @@ public class Board implements Cloneable {
         }
         for (int i = 0; i < c.length; i++) {
             if (c[i] == border) {
-//                System.out.println(PlayerID + ": New Path: " + (score));
                 pathResistances.add(score);
             }
         }
@@ -487,11 +434,13 @@ public class Board implements Cloneable {
         }
     }
 
+    /**
+     * finds the minimum path from the paths specified by getRes()
+     * @return the score of the minimum path
+     */
     private int getMinPath() {
         int min = Integer.MAX_VALUE;
-//        System.out.println("Size = " + pathResistances.size());
         for (int i = 0; i < pathResistances.size(); i++) {
-//            System.out.println("Path No " + (i+1) + " = " + pathResistances.get(i));
             if (pathResistances.get(i) < min) {
                 min = pathResistances.get(i);
             }
@@ -499,6 +448,10 @@ public class Board implements Cloneable {
         return min;
     }
 
+    /**
+     * returns the board in a integer array representation
+     * @return the integer array
+     */
     public int[][] getBoard() {
         int[][] iBoard = new int[size][size];
         for (int i = 0; i < size; i++) {
@@ -508,7 +461,10 @@ public class Board implements Cloneable {
         }
         return iBoard;
     }
-
+    /**
+     * clones the board
+     * @return the cloned board
+     */
     @Override
     public Board clone() {
         Board clone = new Board(size);
@@ -523,7 +479,10 @@ public class Board implements Cloneable {
 
         return clone;
     }
-    
+
+    /**
+     * @return a Lite board representation of the board
+     */
     public LiteBoard getLiteBoard() {
     	int dimensions = getDimensions();
     	byte[][] boardArray = new byte[dimensions][dimensions];
