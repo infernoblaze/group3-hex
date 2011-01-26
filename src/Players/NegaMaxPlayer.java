@@ -27,6 +27,7 @@ public class NegaMaxPlayer implements Player {
     private ArrayList<double[]> bestMoves;
     private int depth;
     private And_Or and;
+    private boolean swapAllowed;
 
     public NegaMaxPlayer(int maxDepth) {
         depth = maxDepth;
@@ -55,11 +56,13 @@ public class NegaMaxPlayer implements Player {
     }
 
     public void setCanSwapSides(boolean state) {
+        swapAllowed = state;
+
     }
 
     public int[] getNextMove() {
+        long start = System.currentTimeMillis();
         theBoard = game.getBoard().clone();
-        System.out.println(theBoard.toString());
         board = theBoard.getBoard();
         boardDimensions = theBoard.getDimensions();
         alpha = -10000.0;
@@ -67,13 +70,11 @@ public class NegaMaxPlayer implements Player {
         levelOne.clear();
         bestMoves.clear();
         Player = playerId;
-        double best = max(depth, alpha, beta);
-        System.out.println("Best Move : " + best);
+        double best = negamax(depth, alpha, beta);
         findBestMove(best);
-        System.out.println("Doing Move: " + bestmove[0] + ", " + bestmove[1]);
+//        System.out.println((System.currentTimeMillis()-start));
         return bestmove;
     }
-
 
     private void doMove(int x, int y) {
         board[x][y] = Player;
@@ -87,44 +88,51 @@ public class NegaMaxPlayer implements Player {
         switchPlayer();
     }
 
-
     private void findBestMove(double best) {
-        double max = -1000000000;
         for (int i = 0; i < levelOne.size(); i++) {
-            if (levelOne.get(i)[2] > max) {
-                max = levelOne.get(i)[2];
-            }
-        }
-        for (int i = 0; i < levelOne.size(); i++) {
-            if (levelOne.get(i)[2] == max) {
+            if (levelOne.get(i)[2] == best) {
                 bestMoves.add(levelOne.get(i));
             }
         }
-        int number = (int) (Math.random() * bestMoves.size());
-        bestmove = new int[]{(int) bestMoves.get(number)[0], (int) bestMoves.get(number)[1]};
+        bestmove = new int[]{(int) bestMoves.get(0)[0], (int) bestMoves.get(0)[1]};
     }
 
-    private double max(int currentDepth, double alpha, double beta) {
+    private double negamax(int currentDepth, double alpha, double beta) {
         if (currentDepth == 0) {
             if (theBoard.getPieceCount() >= theBoard.getDimensions() * 2 - 1) {
-                if (theBoard.checkEnd() == playerId) {
+                if (theBoard.checkEnd() == Player) {
                     return 1000;
-                }
-                else if(theBoard.checkEnd() == (playerId%2+1)) {
+                } else if (theBoard.checkEnd() == (Player % 2 + 1)) {
                     return -1000;
                 }
             }
-            and = new And_Or(theBoard, playerId);
-            double val = theBoard.evaluate(playerId)*10+and.evaluate();
-//            System.out.println(val);
+            and = new And_Or(theBoard, Player);
+            double valueRes = theBoard.evaluate(Player);
+            double valueAnd = and.evaluate();
+            double val = valueRes * 30 + valueAnd;
+//            System.out.println("Ev: "+val);
             return val;
+        }
+        if (swapAllowed) {
+            theBoard.swapSides();
+            double value = -negamax(currentDepth - 1, -beta, -alpha);
+            theBoard.swapSides();
+            if (currentDepth == depth) {
+                levelOne.add(new double[]{-1, -1, value});
+            }
+
+            if (value >= beta) {
+                return beta;
+            }
+            if (value > alpha) {
+                alpha = value;
+            }
         }
         for (int i = 0; i < boardDimensions; i++) {
             for (int j = 0; j < boardDimensions; j++) {
                 if (board[i][j] == 0) {
                     doMove(i, j);
-                    double value = min(currentDepth - 1, alpha, beta);
-                    System.out.println("Minimum of Last Ones: New Node: Depth: "+(depth-currentDepth+1)+", Evaluation : "+value);
+                    double value = -negamax(currentDepth - 1, -beta, -alpha);
                     if (currentDepth == depth) {
                         levelOne.add(new double[]{i, j, value});
                     }
@@ -139,42 +147,5 @@ public class NegaMaxPlayer implements Player {
             }
         }
         return alpha;
-    }
-
-    private double min(int currentDepth, double alpha, double beta) {
-        if (currentDepth == 0) {
-            if (theBoard.getPieceCount() >= theBoard.getDimensions() * 2 - 1) {
-                if (theBoard.checkEnd() == playerId) {
-                    return 1000;
-                }
-                else if(theBoard.checkEnd() ==(playerId%2+1)) {
-                    return -1000;
-                }
-            }
-            and = new And_Or(theBoard, playerId);
-            double val = theBoard.evaluate(playerId)*10+and.evaluate();
-//            System.out.println(val);
-            return val;
-        }
-        for (int i = 0; i < boardDimensions; i++) {
-            for (int j = 0; j < boardDimensions; j++) {
-                if (board[i][j] == 0) {
-                    doMove(i, j);
-                    double value = max(currentDepth - 1, alpha, beta);
-                    System.out.println("Maximum of Last Ones: New Node: Depth: "+(depth-currentDepth+1)+", Evaluation : "+value);
-                    if (currentDepth == depth) {
-                        levelOne.add(new double[]{i, j, value});
-                    }
-                    reMove(i, j);
-                    if (value <= alpha) {
-                        return alpha;
-                    }
-                    if (value < beta) {
-                        beta = value;
-                    }
-                }
-            }
-        }
-        return beta;
     }
 }
