@@ -14,13 +14,13 @@ public class Main {
 	
 	public static void main(String[] args) {
 
-		BoardView boardView = new BoardView();
+		JFrame frame = new JFrame("Hexly");
+		BoardView boardView = new BoardView(frame);
 
 		Game game = new Game();
 		game.setBoardView(boardView);
 		new Thread(game).start();
 		
-		JFrame frame = new JFrame("Hexly");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(new Dimension(800, 500));
 		frame.add(boardView);
