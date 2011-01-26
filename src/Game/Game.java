@@ -35,9 +35,10 @@ public class Game implements Runnable {
 	 */
 
 
-    public Game(){
-		this(5, new HumanPlayer(), new HumanPlayer());
-	}
+
+    public Game() {
+        this(5, new HumanPlayer(), new HumanPlayer());
+    }
 
 	
 	public Game(int boardSize, Player playerOne, Player playerTwo) {

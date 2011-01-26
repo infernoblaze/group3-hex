@@ -8,10 +8,8 @@ package Tests;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import Game.Game;
-import Players.MinimaxPlayer;
-import Players.MonteCarloPlayer;
-import Players.Player;
+import Game.*;
+import Players.*;
 
 /**
  *
@@ -23,19 +21,19 @@ public class MonteCarloTest
     {
         final int[] stats = {0, 0, 0};
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 25; i++)
         {
             System.out.println("Game number " + (i + 1));
 
-            Player one = new MonteCarloPlayer(1.0f, 300000, 15000, false);
+            Player one = new NegaMaxPlayer(3);
             //Player one = new MinimaxPlayer();
-            Player two = new MonteCarloPlayer(1.0f, 200000, 10000, false);
+            Player two = new MonteCarloPlayer(1.0f, 1000000, 10000, false);
 
             Game tempGame;
             if (i % 2 == 0)
-                tempGame = new Game(8, one, two);
+                tempGame = new Game(7, one, two);
             else
-                tempGame = new Game(8, two, one);
+                tempGame = new Game(7, two, one);
 
             final Game game = tempGame;
 

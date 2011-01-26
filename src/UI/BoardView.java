@@ -22,8 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import Game.Board;
-import Game.Game;
+import Game.*;
 import Players.*;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -191,7 +190,7 @@ public class BoardView extends JPanel
 			public void actionPerformed(ActionEvent arg0) {
 				clearMenu(firstPlayer);
 				MinimaxPlayer.setSelected(true);
-				FIRST_PLAYER = new MinimaxPlayer();
+				FIRST_PLAYER = new NegaMaxPlayer(3);
 			}
 		});
 		MonteCarloPlayer.addActionListener(new ActionListener() {
@@ -220,7 +219,7 @@ public class BoardView extends JPanel
 			public void actionPerformed(ActionEvent arg0) {
 				clearMenu(secondPlayer);
 				MinimaxPlayer2.setSelected(true);
-				SECOND_PLAYER = new MinimaxPlayer();
+				SECOND_PLAYER = new NegaMaxPlayer(3);
 			}
 		});
 		MonteCarloPlayer2.addActionListener(new ActionListener() {

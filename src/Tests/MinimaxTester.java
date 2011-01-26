@@ -8,9 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import Game.Game;
-import Players.MinimaxPlayer;
-import Players.MonteCarloPlayer;
-import Players.Player;
+import Players.*;
 
 /**
  *
@@ -27,7 +25,7 @@ public class MinimaxTester
             System.out.println("Game number " + (i + 1));
 
             //Player one = new MonteCarloPlayer();
-            Player one = new MinimaxPlayer();
+            Player one = new NegaMaxPlayer(2);
             Player two = new MonteCarloPlayer();
 
             Game tempGame;
