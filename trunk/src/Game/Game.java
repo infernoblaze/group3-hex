@@ -35,8 +35,8 @@ public class Game implements Runnable {
 	 */
 
 
-         public Game(){
-		this(5, new HumanPlayer(), new MinimaxPlayer());
+    public Game(){
+		this(5, new HumanPlayer(), new HumanPlayer());
 	}
 
 	
