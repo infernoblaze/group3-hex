@@ -12,7 +12,8 @@ public class HumanPlayer implements Player {
 		try {
 			this.wait();
 		} catch (Exception e) {
-			System.err.println("Gotta run, can't wait!");
+//                        System.err.println("Gotta run, can't wait!");
+                        return null;
 		}
 		int[] move = {nextMove[0], nextMove[1]}; 
 		this.nextMove = null;

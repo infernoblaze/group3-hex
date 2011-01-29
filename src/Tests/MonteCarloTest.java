@@ -21,19 +21,19 @@ public class MonteCarloTest
     {
         final int[] stats = {0, 0, 0};
 
-        for (int i = 0; i < 25; i++)
+        for (int i = 0; i < 50; i++)
         {
             System.out.println("Game number " + (i + 1));
 
-            Player one = new NegaMaxPlayer(3);
+            Player one = new NegaMaxPlayer(5);
             //Player one = new MinimaxPlayer();
-            Player two = new MonteCarloPlayer(1.0f, 1000000, 10000, false);
+            Player two = new MonteCarloPlayer(1.0f, 5000, 1000000000, false);
 
             Game tempGame;
             if (i % 2 == 0)
-                tempGame = new Game(7, one, two);
+                tempGame = new Game(5, one, two);
             else
-                tempGame = new Game(7, two, one);
+                tempGame = new Game(5, two, one);
 
             final Game game = tempGame;
 
@@ -49,11 +49,14 @@ public class MonteCarloTest
                                 player = (game.getGameWinner() == 1 ? 2 : 1);
 
                         stats[player]++;
-                        //System.out.println("Player " + player + " won!\n\n");
+                        System.out.println("Player " + player + " won!\n\n");
+                        System.out.println("White: " + stats[1]);
+        System.out.println("Black: " + stats[2]);
                 }
             });
             game.run();
         }
+        System.out.println("Finally:");
         System.out.println("White: " + stats[1]);
         System.out.println("Black: " + stats[2]);
     }
