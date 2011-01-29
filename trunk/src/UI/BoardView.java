@@ -87,6 +87,7 @@ public class BoardView extends JPanel
 		FlowLayout layout = new FlowLayout(FlowLayout.CENTER);
 		layout.setHgap(1000);
 		this.setLayout(layout);
+//                this.setBackground(Color.white);
 	}
 
 	private void clearMenu(JMenu menu) {
@@ -160,9 +161,16 @@ public class BoardView extends JPanel
 		final BoardView tempBoardView = this; 
 		newGameMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Game game = new Game(BOARD_SIZE, FIRST_PLAYER, SECOND_PLAYER);
-				game.setBoardView(tempBoardView);
-				new Thread(game).start();
+                                game.stop();
+                                game = null;
+                                activePlayer = null;
+				Game newgame = new Game(BOARD_SIZE, FIRST_PLAYER, SECOND_PLAYER);
+                                board = newgame.getBoard();
+				newgame.setBoardView(tempBoardView);
+				new Thread(newgame).start();
+                                setGame(newgame);
+                                frame.setSize(frame.getSize().height + 1, frame.getSize().width + 1);
+                                frame.setSize(frame.getSize().height - 1, frame.getSize().width - 1);
 			}
 		});
 		
@@ -190,7 +198,7 @@ public class BoardView extends JPanel
 			public void actionPerformed(ActionEvent arg0) {
 				clearMenu(firstPlayer);
 				MinimaxPlayer.setSelected(true);
-				FIRST_PLAYER = new NegaMaxPlayer(3);
+				FIRST_PLAYER = new NegaMaxPlayer(4);
 			}
 		});
 		MonteCarloPlayer.addActionListener(new ActionListener() {
@@ -219,7 +227,7 @@ public class BoardView extends JPanel
 			public void actionPerformed(ActionEvent arg0) {
 				clearMenu(secondPlayer);
 				MinimaxPlayer2.setSelected(true);
-				SECOND_PLAYER = new NegaMaxPlayer(3);
+				SECOND_PLAYER = new NegaMaxPlayer(4);
 			}
 		});
 		MonteCarloPlayer2.addActionListener(new ActionListener() {

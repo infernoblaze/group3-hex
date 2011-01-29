@@ -127,8 +127,8 @@ public class MonteCarloPlayer implements Player {
 			}
 		}
 		
-		System.out.println("Approximate time spent while simulating: " + totalSimulationTime);
-		System.out.println("Total visits: " + root.visits + "\n");
+//		System.out.println("Approximate time spent while simulating: " + totalSimulationTime);
+//		System.out.println("Total visits: " + root.visits + "\n");
 		
 		int[] nextMove = bestNode.board.getLastPiece();
 		

@@ -15,6 +15,8 @@ import UI.BoardView;
  */
 public class Game implements Runnable {
 
+        private Thread thread;
+
 	private BoardView boardView;
 	private Board board;
 
@@ -64,6 +66,8 @@ public class Game implements Runnable {
 	public void run()
 	{
 
+                thread = Thread.currentThread();
+
 		playerTurn = PLAYER_ONE;
 		turn = 0;
 
@@ -101,6 +105,10 @@ public class Game implements Runnable {
 				
 		// Lets ask the move from the player
 		int[] move = activePlayer.getNextMove();
+
+                if (move == null) {
+                    return;
+                }
 
 		// If it's the first turn of the game player might have wanted to swap
 		// the board.
@@ -186,6 +194,11 @@ public class Game implements Runnable {
 			listener.actionPerformed(new ActionEvent(this, 1, "End Game"));
 		}
 	}
+
+        public synchronized void stop() {
+            boardView = null;
+            thread.interrupt();
+        }
 	
 	/**
 	 * A constant that represents player one
